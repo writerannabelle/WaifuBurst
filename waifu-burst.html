@@ -1,0 +1,1664 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Waifu Burst</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;500;600;700&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --blue: #2196F3;
+    --red: #f44336;
+    --blue-glow: rgba(33,150,243,0.5);
+    --red-glow: rgba(244,67,54,0.5);
+    --gold: #FFD700;
+    --bg-dark: #0a0a1a;
+    --bg-card: #1a1a2e;
+    --bg-board: #16213e;
+  }
+
+  body {
+    font-family: 'Rajdhani', sans-serif;
+    background: var(--bg-dark);
+    color: #e0e0e0;
+    min-height: 100vh;
+    overflow-x: hidden;
+    background-image:
+      radial-gradient(ellipse at 20% 50%, rgba(100,50,180,0.12) 0%, transparent 50%),
+      radial-gradient(ellipse at 80% 50%, rgba(200,80,140,0.08) 0%, transparent 50%);
+  }
+
+  /* ── TITLE SCREEN ── */
+  #title-screen {
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    min-height: 100vh; text-align: center; animation: fadeIn 1s;
+  }
+  #title-screen h1 {
+    font-family: 'Orbitron', sans-serif; font-size: 4rem; font-weight: 900;
+    background: linear-gradient(135deg, #ff6b9d, #c44dff, #6b9dff);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    text-shadow: 0 0 40px rgba(196,77,255,0.3);
+    margin-bottom: 0.5rem; letter-spacing: 4px;
+  }
+  #title-screen .subtitle {
+    font-size: 1.1rem; color: #888; margin-bottom: 3rem; letter-spacing: 6px; text-transform: uppercase;
+  }
+  .menu-btn {
+    display: block; width: 280px; padding: 14px 24px; margin: 8px auto;
+    font-family: 'Orbitron', sans-serif; font-size: 1rem; font-weight: 700;
+    border: 2px solid rgba(196,77,255,0.4); border-radius: 8px;
+    background: rgba(196,77,255,0.1); color: #ddd; cursor: pointer;
+    transition: all 0.3s; letter-spacing: 2px;
+  }
+  .menu-btn:hover {
+    background: rgba(196,77,255,0.25); border-color: #c44dff;
+    box-shadow: 0 0 20px rgba(196,77,255,0.3); color: #fff;
+    transform: translateY(-2px);
+  }
+
+  /* ── SETUP SCREEN ── */
+  #setup-screen { display:none; min-height:100vh; padding:2rem; max-width:900px; margin:0 auto; }
+  #setup-screen h2 {
+    font-family:'Orbitron',sans-serif; font-size:1.8rem; text-align:center;
+    margin-bottom:2rem; color:#c44dff;
+  }
+  .setup-section {
+    background: rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08);
+    border-radius:12px; padding:1.5rem; margin-bottom:1.5rem;
+  }
+  .setup-section h3 { font-family:'Orbitron',sans-serif; font-size:1rem; margin-bottom:1rem; color:#6b9dff; }
+  .rule-grid { display:grid; grid-template-columns: repeat(auto-fill, minmax(180px,1fr)); gap:10px; }
+  .rule-toggle {
+    display:flex; align-items:center; gap:8px; padding:10px 14px;
+    background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08);
+    border-radius:8px; cursor:pointer; transition:all 0.2s; user-select:none;
+  }
+  .rule-toggle:hover { background:rgba(255,255,255,0.06); }
+  .rule-toggle.active { border-color:rgba(196,77,255,0.5); background:rgba(196,77,255,0.1); }
+  .rule-toggle input { display:none; }
+  .rule-indicator {
+    width:18px; height:18px; border-radius:4px; border:2px solid #555;
+    display:flex; align-items:center; justify-content:center; transition:all 0.2s; flex-shrink:0;
+  }
+  .rule-toggle.active .rule-indicator { border-color:#c44dff; background:#c44dff; }
+  .rule-indicator::after { content:'✓'; color:#fff; font-size:12px; opacity:0; transition:opacity 0.2s; }
+  .rule-toggle.active .rule-indicator::after { opacity:1; }
+  .rule-label { font-size:0.95rem; font-weight:600; }
+  .rule-desc { font-size:0.75rem; color:#888; margin-top:2px; }
+  .diff-select { display:flex; gap:10px; margin-top:0.5rem; }
+  .diff-btn {
+    flex:1; padding:10px; border:2px solid rgba(255,255,255,0.1); border-radius:8px;
+    background:rgba(255,255,255,0.03); color:#ccc; cursor:pointer; text-align:center;
+    font-family:'Rajdhani',sans-serif; font-weight:600; font-size:0.95rem; transition:all 0.2s;
+  }
+  .diff-btn:hover { background:rgba(255,255,255,0.06); }
+  .diff-btn.active { border-color:#c44dff; background:rgba(196,77,255,0.15); color:#fff; }
+
+  /* ── DECK SELECTION ── */
+  .deck-picker { display:flex; flex-wrap:wrap; gap:10px; justify-content:center; margin-top:1rem; }
+  .deck-card-pick {
+    width:80px; height:100px; border-radius:8px; cursor:pointer;
+    border:2px solid rgba(255,255,255,0.1); background:var(--bg-card);
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    transition:all 0.2s; position:relative; overflow:hidden;
+  }
+  .deck-card-pick:hover { border-color:rgba(196,77,255,0.5); transform:translateY(-3px); }
+  .deck-card-pick.selected { border-color:#c44dff; box-shadow:0 0 12px rgba(196,77,255,0.4); }
+  .deck-card-pick .card-rank { font-family:'Orbitron',sans-serif; font-size:0.7rem; font-weight:700; }
+  .deck-card-pick .card-name { font-size:0.65rem; color:#aaa; text-align:center; margin-top:4px; }
+  .deck-card-pick .card-emoji { font-size:1.8rem; margin-bottom:4px; }
+
+  .start-game-btn {
+    display:block; width:240px; margin:2rem auto 0; padding:14px;
+    font-family:'Orbitron',sans-serif; font-size:1.1rem; font-weight:700;
+    background:linear-gradient(135deg,#c44dff,#6b9dff); color:#fff;
+    border:none; border-radius:8px; cursor:pointer; transition:all 0.3s; letter-spacing:2px;
+  }
+  .start-game-btn:hover { transform:translateY(-2px); box-shadow:0 6px 24px rgba(196,77,255,0.4); }
+  .start-game-btn:disabled { opacity:0.4; cursor:not-allowed; transform:none; box-shadow:none; }
+
+  /* ── GAME SCREEN ── */
+  #game-screen { display:none; min-height:100vh; padding:1rem; }
+  .game-layout {
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    min-height:calc(100vh - 2rem); max-width:1100px; margin:0 auto;
+  }
+  .game-play-area {
+    display:flex; align-items:center; justify-content:center; gap:1.5rem;
+  }
+  .game-header {
+    text-align:center; padding:0.5rem 0 1rem;
+    font-family:'Orbitron',sans-serif;
+  }
+  .game-header h2 { font-size:1.4rem; color:#c44dff; }
+
+  .turn-indicator { font-size:0.9rem; color:#888; margin-top:4px; }
+  .active-rules-bar {
+    display:flex; gap:6px; justify-content:center; flex-wrap:wrap; margin-top:8px;
+  }
+  .active-rule-tag {
+    padding:3px 10px; border-radius:12px; font-size:0.7rem; font-weight:700;
+    background:rgba(196,77,255,0.15); border:1px solid rgba(196,77,255,0.3); color:#c44dff;
+    letter-spacing:1px; text-transform:uppercase;
+  }
+
+  /* ── HAND AREAS ── */
+  .hand-area { display:flex; flex-direction:column; align-items:center; padding-top:0.5rem; }
+  .hand-area.left { align-items:flex-end; }
+  .hand-area.right { align-items:flex-start; }
+  .hand-stack { position:relative; width:110px; }
+  .hand-stack .card { position:absolute; left:0; }
+  .hand-label {
+    font-family:'Orbitron',sans-serif; font-size:0.85rem; color:#888;
+    text-align:center; margin-bottom:4px; letter-spacing:2px;
+  }
+
+  /* ── CARDS ── */
+  .card {
+    width:110px; height:140px; border-radius:10px; position:relative;
+    cursor:pointer; transition:all 0.3s; overflow:visible;
+    border:2px solid rgba(255,255,255,0.15);
+  }
+  .card.blue { background:linear-gradient(135deg,#1a237e,#1565C0); border-color:rgba(33,150,243,0.4); }
+  .card.red { background:linear-gradient(135deg,#7e1a1a,#C01515); border-color:rgba(244,67,54,0.4); }
+  .card.blue.glow { box-shadow:0 0 16px var(--blue-glow); }
+  .card.red.glow { box-shadow:0 0 16px var(--red-glow); }
+  .card.selected { transform:scale(1.08); box-shadow:0 0 20px rgba(255,215,0,0.6); border-color:var(--gold); }
+  .card.dragging { opacity:0.4; transform:scale(0.95); }
+  .card.draggable { cursor:grab; }
+  .card.draggable:active { cursor:grabbing; }
+  .board-cell.drop-hover {
+    border-color:rgba(255,200,230,0.8) !important;
+    background:rgba(255,150,200,0.2) !important;
+    box-shadow:inset 0 0 15px rgba(255,150,200,0.3);
+  }
+
+
+  .card-inner { width:100%; height:100%; position:relative; overflow:hidden; border-radius:8px; }
+  .card-art {
+    position:absolute; top:0; left:0; width:100%; height:100%;
+    object-fit:cover; object-position:center top;
+    opacity:0.85; pointer-events:none; border-radius:8px;
+  }
+  .card-emoji {
+    position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
+    font-size:2.5rem; opacity:0.9;
+  }
+  .card-name {
+    position:absolute; bottom:4px; left:0; right:0; text-align:center;
+    font-size:0.6rem; font-weight:700; color:rgba(255,255,255,0.7);
+    text-transform:uppercase; letter-spacing:1px;
+  }
+  .card-element-badge {
+    position:absolute; top:2px; right:4px; font-size:0.85rem;
+  }
+
+  /* Card rank cross (upper-left, FF8-style) */
+  .rank-cross {
+    position:absolute; top:4px; left:4px; width:36px; height:36px; z-index:3;
+  }
+  .rank {
+    position:absolute; font-family:'Orbitron',sans-serif; font-size:0.65rem; font-weight:900;
+    color:#fff; text-shadow:0 1px 3px rgba(0,0,0,0.9), 0 0 6px rgba(0,0,0,0.7);
+    z-index:3; line-height:1; text-align:center; width:14px;
+  }
+  .rank-top    { top:0;    left:50%; transform:translateX(-50%); }
+  .rank-bottom { bottom:0; left:50%; transform:translateX(-50%); }
+  .rank-left   { left:0;   top:50%; transform:translateY(-50%); }
+  .rank-right  { right:0;  top:50%; transform:translateY(-50%); }
+  .rank.boosted { color:#5f5; }
+  .rank.nerfed { color:#f55; }
+
+  /* Star rating — below rank cross */
+  .card-stars {
+    position:absolute; top:40px; left:4px; font-size:0.45rem; color:var(--gold);
+    letter-spacing:-1px; z-index:3;
+  }
+
+  /* ── BOARD ── */
+  .board-container { position:relative; display:flex; flex-direction:column; align-items:center; }
+  .board {
+    display:grid; grid-template-columns:repeat(3,1fr);
+    row-gap:12.5px; column-gap:10px;
+    padding:34.5px 30px;
+    background: linear-gradient(160deg, rgba(60,30,100,0.9), rgba(40,20,80,0.9));
+    border:none; border-radius:12px;
+    background-size:100% 100%; background-position:center;
+    position:relative; overflow:visible;
+  }
+  .board.has-bg .board-cell {
+    background:transparent; border-color:transparent;
+  }
+  .board-cell {
+    width:110px; height:136px; border-radius:8px;
+    background:rgba(80,50,140,0.3); border:2px solid rgba(100,200,230,0.25);
+    display:flex; align-items:center; justify-content:center;
+    transition:all 0.2s; position:relative; overflow:visible;
+  }
+  .board-cell.highlight {
+    border-color:rgba(255,150,200,0.6); background:rgba(255,150,200,0.15);
+  }
+  .board.has-bg .board-cell.highlight {
+    background:rgba(255,150,200,0.12);
+  }
+  .board-cell .element-icon {
+    position:absolute; font-size:1.4rem; opacity:0.25;
+  }
+  .board-cell .card { cursor:default; border-radius:4px; }
+  .info-bar {
+    margin-top:8px; padding:6px 20px; background:rgba(255,255,255,0.05);
+    border:1px solid rgba(255,255,255,0.1); border-radius:6px;
+    font-family:'Rajdhani',sans-serif; font-size:0.85rem; color:#aaa;
+    text-align:center; min-width:200px;
+  }
+
+  /* ── MUSIC TOGGLE ── */
+  .music-btn {
+    position:fixed; top:12px; right:12px; z-index:50;
+    width:40px; height:40px; border-radius:50%;
+    background:rgba(255,255,255,0.08); border:2px solid rgba(255,255,255,0.15);
+    color:#ccc; font-size:1.2rem; cursor:pointer;
+    display:flex; align-items:center; justify-content:center;
+    transition:all 0.2s;
+  }
+  .music-btn:hover { background:rgba(255,255,255,0.15); color:#fff; }
+  .music-btn.muted { opacity:0.4; }
+
+  /* ── FLIP ANIMATION ── */
+  /* Deal-in animation */
+  @keyframes dealFromLeft {
+    0%   { transform:translate(-50vw, -20vh) rotate(-25deg) scale(0.5); opacity:0; }
+    40%  { opacity:1; }
+    100% { transform:translate(0,0) rotate(0deg) scale(1); opacity:1; }
+  }
+  @keyframes dealFromRight {
+    0%   { transform:translate(50vw, -20vh) rotate(25deg) scale(0.5); opacity:0; }
+    40%  { opacity:1; }
+    100% { transform:translate(0,0) rotate(0deg) scale(1); opacity:1; }
+  }
+  .card.deal-left {
+    animation: dealFromLeft 0.28s cubic-bezier(0.2,0.8,0.3,1) both;
+  }
+  .card.deal-right {
+    animation: dealFromRight 0.28s cubic-bezier(0.2,0.8,0.3,1) both;
+  }
+
+  /* Directional flip animations — card flips away from point of contact */
+  @keyframes flipFromLeft {
+    0% { transform:perspective(400px) rotateY(0deg); }
+    50% { transform:perspective(400px) rotateY(90deg); }
+    100% { transform:perspective(400px) rotateY(0deg); }
+  }
+  @keyframes flipFromRight {
+    0% { transform:perspective(400px) rotateY(0deg); }
+    50% { transform:perspective(400px) rotateY(-90deg); }
+    100% { transform:perspective(400px) rotateY(0deg); }
+  }
+  @keyframes flipFromTop {
+    0% { transform:perspective(400px) rotateX(0deg); }
+    50% { transform:perspective(400px) rotateX(-90deg); }
+    100% { transform:perspective(400px) rotateX(0deg); }
+  }
+  @keyframes flipFromBottom {
+    0% { transform:perspective(400px) rotateX(0deg); }
+    50% { transform:perspective(400px) rotateX(90deg); }
+    100% { transform:perspective(400px) rotateX(0deg); }
+  }
+  .card.flip-from-left   { animation: flipFromLeft 0.5s ease-in-out; }
+  .card.flip-from-right  { animation: flipFromRight 0.5s ease-in-out; }
+  .card.flip-from-top    { animation: flipFromTop 0.5s ease-in-out; }
+  .card.flip-from-bottom { animation: flipFromBottom 0.5s ease-in-out; }
+
+  /* Heart sparkle particles */
+  .heart-burst { position:absolute; top:0; left:0; width:100%; height:100%; pointer-events:none; overflow:visible; z-index:20; }
+  .heart-particle {
+    position:absolute; font-size:1rem; opacity:0;
+    animation: heartFloat 2s ease-out forwards;
+    filter: drop-shadow(0 0 4px rgba(255,100,150,0.7));
+  }
+  @keyframes heartFloat {
+    0%   { opacity:1; transform:translate(0,0) scale(0.3) rotate(0deg); }
+    20%  { opacity:1; transform:scale(1.2); }
+    50%  { opacity:0.9; transform:translate(calc(var(--hx)*0.5), calc(var(--hy)*0.5)) scale(1) rotate(calc(var(--hr)*0.4)); }
+    100% { opacity:0; transform:translate(var(--hx), var(--hy)) scale(0.3) rotate(var(--hr)); }
+  }
+
+  /* ── RESULT SCREEN ── */
+  #result-overlay {
+    display:none; position:fixed; inset:0; background:rgba(0,0,0,0.85);
+    z-index:100; align-items:center; justify-content:center; flex-direction:column;
+  }
+  #result-overlay.show { display:flex; animation:fadeIn 0.5s; }
+  #result-overlay h2 {
+    font-family:'Orbitron',sans-serif; font-size:3rem; margin-bottom:1rem;
+  }
+  #result-overlay .result-sub { font-size:1.2rem; color:#aaa; margin-bottom:2rem; }
+  .win-text { color:var(--gold); text-shadow:0 0 30px rgba(255,215,0,0.4); }
+  .lose-text { color:var(--red); }
+  .draw-text { color:#aaa; }
+
+  @keyframes fadeIn { from{opacity:0} to{opacity:1} }
+
+  /* ── RESPONSIVE ── */
+  @media(max-width:700px){
+    .game-play-area { flex-direction:column; gap:1rem; }
+  }
+</style>
+</head>
+<body>
+
+<!-- MUSIC -->
+<audio id="bgm" loop preload="auto"><source src="WFBurst.mp3" type="audio/mpeg"></audio>
+<audio id="sfx-card-a" preload="auto"><source src="CardA.mp3" type="audio/mpeg"></audio>
+<audio id="sfx-card-b" preload="auto"><source src="CardB.mp3" type="audio/mpeg"></audio>
+<audio id="sfx-shuffle" preload="auto"><source src="CardShuffle.mp3" type="audio/mpeg"></audio>
+<audio id="sfx-flip" preload="auto"><source src="Cardflip.mp3" type="audio/mpeg"></audio>
+<button class="music-btn muted" id="music-btn" onclick="toggleMusic()" title="Toggle music">♪</button>
+
+<!-- TITLE SCREEN (DEMO MODE) -->
+<div id="title-screen">
+  <h1>WAIFU BURST</h1>
+  <p class="subtitle">A Card Battle Game</p>
+  <button class="menu-btn" onclick="startGame()">PLAY GAME</button>
+  <button class="menu-btn" onclick="showHowToPlay()" style="border-color:rgba(255,255,255,0.15);background:rgba(255,255,255,0.03)">HOW TO PLAY</button>
+</div>
+
+<div id="setup-screen" style="display:none"></div>
+
+<!-- GAME SCREEN -->
+<div id="game-screen">
+  <div class="game-layout">
+    <div class="game-header">
+      <h2>WAIFU BURST</h2>
+      <div class="turn-indicator" id="turn-indicator">Your turn</div>
+      <div class="active-rules-bar" id="active-rules-bar"></div>
+    </div>
+
+    <div class="game-play-area">
+      <div class="hand-area left" id="player-hand">
+        <div class="hand-label">PLAYER</div>
+      </div>
+
+      <div class="board-container">
+        <div class="board" id="board"></div>
+        <div id="particle-layer" style="position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:50;overflow:visible;"></div>
+        <div class="info-bar" id="info-bar">Select a card</div>
+      </div>
+
+      <div class="hand-area right" id="ai-hand">
+        <div class="hand-label">AI</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- RESULT OVERLAY -->
+<div id="result-overlay">
+  <h2 id="result-text"></h2>
+  <p class="result-sub" id="result-sub"></p>
+  <button class="menu-btn" onclick="rematch()">PLAY AGAIN</button>
+  <button class="menu-btn" style="margin-top:0.5rem;border-color:rgba(255,255,255,0.15);background:rgba(255,255,255,0.03)" onclick="backToTitle()">MAIN MENU</button>
+</div>
+
+<!-- HOW TO PLAY OVERLAY -->
+<div id="howto-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.92);z-index:100;overflow-y:auto;padding:2rem;">
+  <div style="max-width:700px;margin:0 auto;">
+    <h2 style="font-family:'Orbitron',sans-serif;color:#c44dff;margin-bottom:1.5rem;">HOW TO PLAY</h2>
+    <div style="line-height:1.8;color:#ccc;" id="howto-content"></div>
+    <button class="menu-btn" style="margin-top:2rem;" onclick="document.getElementById('howto-overlay').style.display='none'">BACK</button>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════
+//  WAIFU BURST – Complete Triple Triad Clone
+// ═══════════════════════════════════════════════
+
+// ── CARD DATABASE ──
+const ELEMENTS = ['fire','ice','thunder','earth','water','wind','poison','holy'];
+const ELEM_ICONS = {fire:'🔥',ice:'❄️',thunder:'⚡',earth:'🪨',water:'💧',wind:'🌪️',poison:'☠️',holy:'✨'};
+
+const RARITIES = {
+  common:    { label:'Common',    color:'#aaa',    budgetMin:8,  budgetMax:12, rankMin:1, rankMax:4,  guaranteeW:false },
+  uncommon:  { label:'Uncommon',  color:'#4caf50', budgetMin:13, budgetMax:17, rankMin:1, rankMax:6,  guaranteeW:false },
+  rare:      { label:'Rare',      color:'#2196f3', budgetMin:18, budgetMax:22, rankMin:1, rankMax:8,  guaranteeW:false },
+  epic:      { label:'Epic',      color:'#9c27b0', budgetMin:23, budgetMax:26, rankMin:1, rankMax:9,  guaranteeW:false },
+  legendary: { label:'Legendary', color:'#ff9800', budgetMin:27, budgetMax:29, rankMin:1, rankMax:10, guaranteeW:false },
+  unique:    { label:'Unique',    color:'#e91e63', budgetMin:24, budgetMax:27, rankMin:1, rankMax:10, guaranteeW:true  },
+};
+const RARITY_ORDER = ['common','uncommon','rare','epic','legendary','unique'];
+
+// ── DETERMINISTIC RANK GENERATION ──
+// Hash a string into a stable 32-bit integer
+function hashStr(str){
+  let h = 0;
+  for(let i=0; i<str.length; i++){
+    h = ((h << 5) - h + str.charCodeAt(i)) | 0;
+  }
+  return Math.abs(h);
+}
+
+// Seeded PRNG (mulberry32)
+function seededRng(seed){
+  return function(){
+    seed |= 0; seed = seed + 0x6D2B79F5 | 0;
+    let t = Math.imul(seed ^ seed >>> 15, 1 | seed);
+    t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+    return ((t ^ t >>> 14) >>> 0) / 4294967296;
+  };
+}
+
+// Generate 4 ranks deterministically from card name + rarity
+function generateRanks(cardName, rarity){
+  const r = RARITIES[rarity];
+  const seed = hashStr(cardName + ':' + rarity);
+  const rng = seededRng(seed);
+
+  // Determine budget within range
+  const budgetRange = r.budgetMax - r.budgetMin + 1;
+  const budget = r.budgetMin + Math.floor(rng() * budgetRange);
+
+  // Start at minimums
+  const ranks = [r.rankMin, r.rankMin, r.rankMin, r.rankMin];
+  let spent = r.rankMin * 4;
+
+  // Unique: guarantee one W(10) on a seeded side
+  if(r.guaranteeW){
+    const wSlot = Math.floor(rng() * 4);
+    ranks[wSlot] = 10;
+    spent += (10 - r.rankMin);
+  }
+
+  let remaining = budget - spent;
+
+  // Generate an exponent that controls spikiness (0.3=very spiky, 3.0=very flat)
+  // Wide range means some cards are glass cannons, others are balanced
+  const spikiness = 0.3 + rng() * 2.7;
+
+  // Create raw weights with high variance using power curve
+  const rawWeights = [0,1,2,3].map(() => Math.pow(rng(), spikiness));
+  const wTotal = rawWeights.reduce((a,b) => a+b, 0) || 1;
+
+  // Shuffle which slot gets which weight for positional variety
+  const slotOrder = [0,1,2,3];
+  for(let i=3; i>0; i--){
+    const j = Math.floor(rng() * (i+1));
+    [slotOrder[i], slotOrder[j]] = [slotOrder[j], slotOrder[i]];
+  }
+  const weights = [0,0,0,0];
+  slotOrder.forEach((slot, wi) => { weights[slot] = rawWeights[wi]; });
+
+  // Proportional allocation
+  const targets = [0,0,0,0];
+  let allocated = 0;
+  for(let i=0; i<4; i++){
+    const ideal = (weights[i] / wTotal) * remaining;
+    const maxAdd = r.rankMax - ranks[i];
+    targets[i] = Math.min(Math.floor(ideal), maxAdd);
+    allocated += targets[i];
+  }
+
+  // Apply targets
+  for(let i=0; i<4; i++){
+    ranks[i] += targets[i];
+  }
+  remaining -= allocated;
+
+  // Distribute leftover (from floor rounding) in shuffled order
+  const distOrder = [0,1,2,3];
+  for(let i=3; i>0; i--){
+    const j = Math.floor(rng() * (i+1));
+    [distOrder[i], distOrder[j]] = [distOrder[j], distOrder[i]];
+  }
+  // Sort by who has the most headroom, with shuffle as tiebreak
+  distOrder.sort((a,b) => (r.rankMax - ranks[a]) - (r.rankMax - ranks[b]));
+  distOrder.reverse();
+
+  while(remaining > 0){
+    let placed = false;
+    for(let k=0; k<4 && remaining>0; k++){
+      const idx = distOrder[k];
+      if(ranks[idx] < r.rankMax){
+        ranks[idx]++;
+        remaining--;
+        placed = true;
+      }
+    }
+    if(!placed) break;
+  }
+
+  // Clamp safety
+  return ranks.map(v => Math.max(r.rankMin, Math.min(r.rankMax, v)));
+}
+
+// Card definitions — Beta Test Edition with real character art
+const CARD_DEFS = [
+  // Originals
+  {id:1, name:'Abella', emoji:'🃏', rarity:'rare', element:null, image:'cards_web/Abella_Original.jpg'},
+  {id:2, name:'Cecilia', emoji:'🃏', rarity:'epic', element:'ice', image:'cards_web/Cecilia.jpg'},
+  {id:3, name:'Kitsune', emoji:'🃏', rarity:'legendary', element:'fire', image:'cards_web/Kitsune.jpg'},
+  {id:4, name:'Naga', emoji:'🃏', rarity:'rare', element:null, image:'cards_web/Naga.jpg'},
+  {id:5, name:'Tink', emoji:'🃏', rarity:'uncommon', element:'water', image:'cards_web/Tink.jpg'},
+  // Naia
+  {id:6, name:'Naia', emoji:'🃏', rarity:'epic', element:'earth', image:'cards_web/Naia_Original.jpg'},
+  {id:7, name:'Naia: Moonlight', emoji:'🃏', rarity:'common', element:'earth', image:'cards_web/Naia_Alt1.jpg'},
+  {id:8, name:'Naia: Tidewalker', emoji:'🃏', rarity:'common', element:null, image:'cards_web/Naia_Alt2.jpg'},
+  {id:9, name:'Naia: Stormcaller', emoji:'🃏', rarity:'legendary', element:null, image:'cards_web/Naia_Alt3.jpg'},
+  // Rowan
+  {id:10, name:'Rowan', emoji:'🃏', rarity:'rare', element:null, image:'cards_web/Rowan_Original.jpg'},
+  {id:11, name:'Rowan: Shadowblade', emoji:'🃏', rarity:'rare', element:'ice', image:'cards_web/Rowan_Alt1.jpg'},
+  {id:12, name:'Rowan: Duskmantle', emoji:'🃏', rarity:'common', element:'poison', image:'cards_web/Rowan_Alt2.jpg'},
+  {id:13, name:'Rowan: Nightbloom', emoji:'🃏', rarity:'common', element:'fire', image:'cards_web/Rowan_Alt3.jpg'},
+  {id:14, name:'Rowan: Thornguard', emoji:'🃏', rarity:'common', element:'earth', image:'cards_web/Rowan_Alt4.jpg'},
+  {id:15, name:'Rowan: Ashwalker', emoji:'🃏', rarity:'rare', element:null, image:'cards_web/Rowan_Alt5.jpg'},
+  {id:16, name:'Rowan: Emberheart', emoji:'🃏', rarity:'rare', element:'fire', image:'cards_web/Rowan_Alt6.jpg'},
+  // Abella Alts
+  {id:17, name:'Abella: Crimson', emoji:'🃏', rarity:'epic', element:'earth', image:'cards_web/Abella_Alt1.jpg'},
+  {id:18, name:'Abella: Starlight', emoji:'🃏', rarity:'epic', element:null, image:'cards_web/Abella_Alt2.jpg'},
+  {id:19, name:'Abella: Eclipse', emoji:'🃏', rarity:'uncommon', element:null, image:'cards_web/Abella_Alt3.jpg'},
+  {id:20, name:'Abella: Tempest', emoji:'🃏', rarity:'uncommon', element:'earth', image:'cards_web/Abella_Alt4.jpg'},
+  {id:21, name:'Abella: Radiance', emoji:'🃏', rarity:'uncommon', element:null, image:'cards_web/Abella_Alt5.jpg'},
+  {id:22, name:'Abella: Frostpetal', emoji:'🃏', rarity:'unique', element:'fire', image:'cards_web/Abella_Alt6.jpg'},
+  {id:23, name:'Abella: Voidweaver', emoji:'🃏', rarity:'epic', element:'thunder', image:'cards_web/Abella_Alt7.jpg'},
+  {id:24, name:'Abella: Sunfire', emoji:'🃏', rarity:'uncommon', element:'poison', image:'cards_web/Abella_Alt8.jpg'},
+  {id:25, name:'Abella: Dawnbringer', emoji:'🃏', rarity:'common', element:'water', image:'cards_web/Abella_Alt9.jpg'},
+  {id:26, name:'Abella: Enchantress', emoji:'🃏', rarity:'unique', element:'earth', image:'cards_web/Abella_Alt10.jpg'},
+  // Vivienne
+  {id:27, name:'Vivienne', emoji:'🃏', rarity:'legendary', element:'wind', image:'cards_web/Vivienne_Original.jpg'},
+  {id:28, name:'Vivienne: Scarlet', emoji:'🃏', rarity:'common', element:'ice', image:'cards_web/Vivienne_Alt1.jpg'},
+  {id:29, name:'Vivienne: Siren', emoji:'🃏', rarity:'common', element:'poison', image:'cards_web/Vivienne_Alt2.jpg'},
+  {id:30, name:'Vivienne: Mystic', emoji:'🃏', rarity:'uncommon', element:'wind', image:'cards_web/Vivienne_Alt3.jpg'},
+  {id:31, name:'Vivienne: Inferno', emoji:'🃏', rarity:'common', element:null, image:'cards_web/Vivienne_Alt4.jpg'},
+  {id:32, name:'Vivienne: Velvet', emoji:'🃏', rarity:'legendary', element:'fire', image:'cards_web/Vivienne_Alt5.jpg'},
+];
+
+// Build ALL_CARDS with generated ranks
+const ALL_CARDS = CARD_DEFS.map(def => ({
+  ...def,
+  ranks: generateRanks(def.name, def.rarity),
+}));
+
+// ── RULE DEFINITIONS ──
+const RULES = [
+
+  {id:'random',   name:'Random',     desc:'Random decks'},
+  {id:'sameWall', name:'Same Wall',  desc:'Walls count as W'},
+  {id:'same',     name:'Same',       desc:'Flip matching pairs'},
+  {id:'plus',     name:'Plus',       desc:'Flip matching sums'},
+  {id:'combo',    name:'Combo',      desc:'Chain flips'},
+  {id:'elemental',name:'Elemental',  desc:'+1/-1 by element'},
+  {id:'suddenDeath',name:'Sudden Death',desc:'Redeal on draw'},
+];
+
+// ── GAME STATE ──
+let state = {
+  board: Array(9).fill(null),       // {card, owner:'blue'|'red'}
+  boardElements: Array(9).fill(null),
+  playerHand: [],
+  aiHand: [],
+  selectedCard: null,
+  turn: 'blue',                     // blue=player, red=ai
+  rules: {random:false,sameWall:false,same:false,plus:false,combo:false,elemental:false,suddenDeath:false},
+  difficulty: 'normal',
+  playerDeck: [],
+  gameActive: false,
+  animating: false,
+  boardImage: 'cards_web/WB_Board.jpg',
+  draggingCardIdx: null,
+};
+
+// ── SCREENS ──
+function showScreen(id) {
+  ['title-screen','setup-screen','game-screen'].forEach(s => document.getElementById(s).style.display='none');
+  document.getElementById('result-overlay').classList.remove('show');
+  document.getElementById(id).style.display = id==='title-screen'?'flex': (id==='game-screen'?'block':'block');
+}
+function backToTitle(){ showScreen('title-screen'); }
+function showSetup(){
+  showScreen('setup-screen');
+  buildRuleGrid();
+  buildDeckPicker();
+}
+function showHowToPlay(){
+  const el = document.getElementById('howto-overlay');
+  document.getElementById('howto-content').innerHTML = `
+    <p><strong>Waifu Burst</strong> is a card battle game played on a 3×3 grid. Each card has four rank numbers — top, right, bottom, left — ranging from 1 to W (10).</p>
+    <p style="margin-top:1rem"><strong>Basic Play:</strong> Players take turns placing one card on an empty cell. When a card is placed, its ranks are compared to adjacent opponent cards. If your rank on the touching side is higher than the opponent's rank on their touching side, you capture (flip) that card to your color.</p>
+    <p style="margin-top:1rem"><strong>Winning:</strong> After all 9 cells are filled, the player controlling the most cards (on board + remaining in hand) wins.</p>
+    <h3 style="color:#c44dff;margin-top:1.5rem;font-family:'Orbitron',sans-serif;font-size:1rem;">SPECIAL RULES</h3>
+    <p style="margin-top:0.5rem"><strong>Same</strong> — If two or more adjacent cards have the same rank on their touching sides, those cards are captured.</p>
+    <p><strong>Plus</strong> — If the sum of touching ranks on two or more adjacent pairs are equal, those cards are captured.</p>
+    <p><strong>Same Wall</strong> — Board edges count as rank W (10) for Same/Plus calculations.</p>
+    <p><strong>Combo</strong> — Cards captured by Same or Plus can chain-capture further adjacent cards using normal rank comparison.</p>
+    <p><strong>Elemental</strong> — Board cells may have elements. Matching element gives +1 to all ranks; mismatched element gives -1.</p>
+    <p><strong>Random</strong> — Decks are randomly assigned from the card pool.</p>
+    <p><strong>Sudden Death</strong> — On a draw, the game replays with each player keeping the cards they captured.</p>
+  `;
+  el.style.display='block';
+}
+
+// ── SETUP ──
+function buildRuleGrid(){
+  const grid = document.getElementById('rule-grid');
+  grid.innerHTML='';
+  RULES.forEach(r=>{
+    const div = document.createElement('div');
+    div.className = 'rule-toggle' + (state.rules[r.id]?' active':'');
+    div.innerHTML = `<div class="rule-indicator"></div><div><div class="rule-label">${r.name}</div><div class="rule-desc">${r.desc}</div></div>`;
+    div.onclick = ()=>{ state.rules[r.id]=!state.rules[r.id]; div.classList.toggle('active'); };
+    grid.appendChild(div);
+  });
+}
+
+function setDifficulty(d, btn){
+  state.difficulty=d;
+  document.querySelectorAll('.diff-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+function buildDeckPicker(){
+  const picker = document.getElementById('deck-picker');
+  picker.innerHTML='';
+  state.playerDeck = [];
+  RARITY_ORDER.forEach(rarity=>{
+    const r = RARITIES[rarity];
+    const header = document.createElement('div');
+    header.style.cssText = `width:100%;font-family:'Orbitron',sans-serif;font-size:0.85rem;color:${r.color};margin-top:1rem;margin-bottom:0.25rem;letter-spacing:2px;`;
+    header.textContent = r.label.toUpperCase();
+    picker.appendChild(header);
+
+    const row = document.createElement('div');
+    row.style.cssText = 'display:flex;flex-wrap:wrap;gap:10px;width:100%;';
+
+    ALL_CARDS.filter(c=>c.rarity===rarity).forEach(c=>{
+      const div = document.createElement('div');
+      div.className='deck-card-pick';
+      div.style.borderColor = r.color + '40';
+      div.innerHTML = `<div class="card-emoji">${c.emoji}</div><div class="card-rank">${c.ranks.map(v=>v>=10?'W':v).join(' ')}</div><div class="card-name">${c.name}</div>`;
+      div.onclick = ()=>{
+        const idx = state.playerDeck.indexOf(c.id);
+        if(idx>=0){ state.playerDeck.splice(idx,1); div.classList.remove('selected'); div.style.borderColor=r.color+'40'; }
+        else if(state.playerDeck.length<5){ state.playerDeck.push(c.id); div.classList.add('selected'); div.style.borderColor=r.color; }
+        document.getElementById('start-btn').disabled = state.playerDeck.length!==5;
+      };
+      row.appendChild(div);
+    });
+    picker.appendChild(row);
+  });
+  document.getElementById('start-btn').disabled=true;
+}
+
+// ── START GAME (DEMO MODE — random decks, normal rules) ──
+function startGame(){
+  state.board = Array(9).fill(null);
+  state.selectedCard = null;
+  state.turn = 'blue';
+  state.gameActive = true;
+  state.animating = false;
+  state.boardElements = Array(9).fill(null);
+
+  // Demo mode: always random decks
+  const pool = shuffle([...ALL_CARDS]);
+  state.playerHand = pool.slice(0,5).map(c=>({...c, owner:'blue'}));
+  state.aiHand = pool.slice(5,10).map(c=>({...c, owner:'red'}));
+
+  showScreen('game-screen');
+  renderGame();
+  startMusic();
+
+  // Deal-in animation
+  dealInAnimation(()=>{
+    // Cards are dealt — game is now playable
+    updateTurnIndicator();
+  });
+}
+
+function pickAIDeck(){
+  let pool = [...ALL_CARDS];
+  let allowedRarities;
+  switch(state.difficulty){
+    case 'easy':   allowedRarities = ['common','uncommon']; break;
+    case 'normal': allowedRarities = ['common','uncommon','rare','epic']; break;
+    case 'hard':   allowedRarities = RARITY_ORDER; break;
+  }
+  pool = pool.filter(c=>allowedRarities.includes(c.rarity));
+  // Hard mode: bias toward higher rarity
+  if(state.difficulty==='hard'){
+    pool.sort((a,b)=> RARITY_ORDER.indexOf(b.rarity) - RARITY_ORDER.indexOf(a.rarity));
+    pool = pool.slice(0, Math.min(15, pool.length));
+  }
+  return shuffle(pool).slice(0,5).map(c=>({...c, owner:'red'}));
+}
+
+// ── RENDERING ──
+function renderGame(){
+  renderBoard();
+  renderHand('player-hand', state.playerHand, 'blue');
+  renderHand('ai-hand', state.aiHand, 'red');
+  updateScore();
+  updateTurnIndicator();
+  renderActiveRules();
+}
+
+function renderBoard(){
+  const board = document.getElementById('board');
+  board.innerHTML='';
+  // Apply board background if set
+  if(state.boardImage){
+    board.style.backgroundImage = `url(${state.boardImage})`;
+    board.classList.add('has-bg');
+  } else {
+    board.classList.remove('has-bg');
+  }
+  for(let i=0;i<9;i++){
+    const cell = document.createElement('div');
+    cell.className = 'board-cell';
+    if(state.boardElements[i]){
+      const icon = document.createElement('span');
+      icon.className='element-icon';
+      icon.textContent = ELEM_ICONS[state.boardElements[i]];
+      cell.appendChild(icon);
+    }
+    if(state.board[i]){
+      cell.appendChild(createCardElement(state.board[i].card, state.board[i].owner, false, i));
+    }
+    if(!state.board[i] && state.selectedCard!==null){
+      cell.classList.add('highlight');
+    }
+    // Click placement (fallback)
+    cell.onclick = ()=> placeCard(i);
+    // Drop placement
+    if(!state.board[i]){
+      cell.ondragover = (e)=>{ e.preventDefault(); e.dataTransfer.dropEffect='move'; cell.classList.add('drop-hover'); };
+      cell.ondragleave = ()=>{ cell.classList.remove('drop-hover'); };
+      cell.ondrop = (e)=>{
+        e.preventDefault();
+        cell.classList.remove('drop-hover');
+        const cardIdx = parseInt(e.dataTransfer.getData('text/plain'));
+        if(!isNaN(cardIdx) && state.turn==='blue' && state.gameActive && !state.animating){
+          state.selectedCard = cardIdx;
+          placeCard(i);
+        }
+      };
+    }
+    board.appendChild(cell);
+  }
+}
+
+function renderHand(containerId, hand, owner){
+  const STACK_OFFSET = 70; // 50% of 140px card height
+  const container = document.getElementById(containerId);
+  container.innerHTML='';
+
+  const label = document.createElement('div');
+  label.className='hand-label';
+  label.textContent = owner==='blue' ? 'PLAYER' : 'AI';
+  container.appendChild(label);
+
+  // Card stack container
+  const stack = document.createElement('div');
+  stack.className='hand-stack';
+  const totalHeight = hand.length > 0 ? (hand.length - 1) * STACK_OFFSET + 140 : 0;
+  stack.style.height = totalHeight + 'px';
+
+  hand.forEach((card,idx)=>{
+    const el = createCardElement(card, owner, false);
+    el.style.top = (idx * STACK_OFFSET) + 'px';
+    el.style.zIndex = idx + 1;
+    if(owner==='blue' && state.turn==='blue' && state.gameActive){
+      // Click fallback
+      el.onclick = ()=> selectCard(idx);
+      if(state.selectedCard===idx) el.classList.add('selected');
+      // Drag support
+      el.draggable = true;
+      el.classList.add('draggable');
+      el.ondragstart = (e)=>{
+        state.draggingCardIdx = idx;
+        el.classList.add('dragging');
+        e.dataTransfer.effectAllowed = 'move';
+        e.dataTransfer.setData('text/plain', idx);
+        // Highlight valid cells
+        setTimeout(()=> highlightDropZones(true), 0);
+      };
+      el.ondragend = ()=>{
+        el.classList.remove('dragging');
+        state.draggingCardIdx = null;
+        highlightDropZones(false);
+      };
+    }
+    el.onmouseenter = ()=>{
+      document.getElementById('info-bar').textContent = card.name + (card.element ? ' [' + card.element.toUpperCase() + ']' : '');
+    };
+    el.onmouseleave = ()=>{
+      document.getElementById('info-bar').textContent = state.turn==='blue' ? 'Select a card' : 'AI is thinking...';
+    };
+    stack.appendChild(el);
+  });
+  container.appendChild(stack);
+
+  // Score number below stack
+  const score = document.createElement('div');
+  score.className = `hand-score ${owner==='blue'?'blue':'red'}`;
+  score.id = `score-${owner==='blue'?'blue':'red'}`;
+  container.appendChild(score);
+}
+
+function createCardElement(card, owner, facedown=false, boardIdx=-1){
+  const div = document.createElement('div');
+  div.className = `card ${owner}` + (facedown?' facedown':'');
+
+  if(!facedown){
+    const ranks = getEffectiveRanks(card, boardIdx);
+    const inner = document.createElement('div');
+    inner.className='card-inner';
+
+    // Rank cross (upper-left, FF8-style)
+    const cross = document.createElement('div');
+    cross.className='rank-cross';
+    const positions = ['top','right','bottom','left'];
+    positions.forEach((pos,i)=>{
+      const r = document.createElement('div');
+      r.className = `rank rank-${pos}`;
+      const baseVal = card.ranks[i];
+      const effVal = ranks[i];
+      if(effVal > baseVal) r.classList.add('boosted');
+      else if(effVal < baseVal) r.classList.add('nerfed');
+      r.textContent = effVal >= 10 ? 'W' : effVal;
+      cross.appendChild(r);
+    });
+    inner.appendChild(cross);
+
+    // Rarity indicator
+    const rarityInfo = RARITIES[card.rarity];
+    const stars = document.createElement('div');
+    stars.className='card-stars';
+    stars.style.color = rarityInfo.color;
+    const starCount = RARITY_ORDER.indexOf(card.rarity) + 1;
+    stars.textContent = '★'.repeat(starCount);
+    inner.appendChild(stars);
+
+    // Element badge
+    if(card.element){
+      const badge = document.createElement('div');
+      badge.className='card-element-badge';
+      badge.textContent = ELEM_ICONS[card.element];
+      inner.appendChild(badge);
+    }
+
+    // Card art: image if available, else emoji fallback
+    if(card.image){
+      const img = document.createElement('img');
+      img.className='card-art';
+      img.src = card.image;
+      img.alt = card.name;
+      img.draggable = false;
+      inner.appendChild(img);
+    } else {
+      const emoji = document.createElement('div');
+      emoji.className='card-emoji';
+      emoji.textContent = card.emoji;
+      inner.appendChild(emoji);
+    }
+
+    // Name
+    const name = document.createElement('div');
+    name.className='card-name';
+    name.textContent=card.name;
+    inner.appendChild(name);
+
+    div.appendChild(inner);
+  }
+  return div;
+}
+
+function getEffectiveRanks(card, boardIdx){
+  let ranks = [...card.ranks];
+  if(state.rules.elemental && boardIdx >= 0 && state.boardElements[boardIdx]){
+    const cellElem = state.boardElements[boardIdx];
+    if(card.element === cellElem){
+      ranks = ranks.map(r=>Math.min(r+1, 10));
+    } else {
+      ranks = ranks.map(r=>Math.max(r-1, 1));
+    }
+  }
+  return ranks;
+}
+
+function updateScore(){
+  let blue=0, red=0;
+  state.board.forEach(cell=>{ if(cell){ cell.owner==='blue'?blue++:red++; }});
+  blue += state.playerHand.length;
+  red += state.aiHand.length;
+  document.getElementById('score-blue').textContent=blue;
+  document.getElementById('score-red').textContent=red;
+}
+
+function updateTurnIndicator(){
+  const el = document.getElementById('turn-indicator');
+  el.textContent = state.turn==='blue' ? "Your turn" : "AI is thinking...";
+  el.style.color = state.turn==='blue' ? 'var(--blue)' : 'var(--red)';
+  const info = document.getElementById('info-bar');
+  if(info) info.textContent = state.turn==='blue' ? 'Select a card' : 'AI is thinking...';
+}
+
+function renderActiveRules(){
+  const bar = document.getElementById('active-rules-bar');
+  bar.innerHTML='';
+  RULES.forEach(r=>{
+    if(state.rules[r.id]){
+      const tag = document.createElement('span');
+      tag.className='active-rule-tag';
+      tag.textContent=r.name;
+      bar.appendChild(tag);
+    }
+  });
+}
+
+// ── CARD SELECTION & PLACEMENT ──
+function highlightDropZones(show){
+  const cells = document.getElementById('board').children;
+  for(let i=0; i<cells.length; i++){
+    if(!state.board[i]){
+      cells[i].classList.toggle('highlight', show);
+    }
+  }
+}
+
+function selectCard(idx){
+  if(state.turn!=='blue' || !state.gameActive || state.animating) return;
+  state.selectedCard = state.selectedCard===idx ? null : idx;
+  renderGame();
+}
+
+function placeCard(cellIdx){
+  if(!state.gameActive || state.animating) return;
+  if(state.board[cellIdx]) return;
+
+  if(state.turn==='blue'){
+    if(state.selectedCard===null) return;
+    const card = state.playerHand.splice(state.selectedCard, 1)[0];
+    executePlace(card, cellIdx, 'blue');
+  }
+}
+
+function executePlace(card, cellIdx, owner){
+  state.animating = true;
+  state.board[cellIdx] = { card, owner };
+  state.selectedCard = null;
+  playPlaceSound(owner);
+  renderGame();
+
+  // Process captures after short delay for visual feedback
+  setTimeout(()=>{
+    const flipped = processCaptures(cellIdx);
+    animateFlips(flipped, ()=>{
+      state.animating = false;
+      updateScore();
+
+      // Check game end
+      if(state.board.every(c=>c!==null)){
+        endGame();
+        return;
+      }
+
+      // Switch turn
+      state.turn = state.turn==='blue'?'red':'blue';
+      renderGame();
+
+      if(state.turn==='red'){
+        setTimeout(()=> aiTurn(), 600 + Math.random()*800);
+      }
+    });
+  }, 200);
+}
+
+// ── CAPTURE LOGIC ──
+function processCaptures(cellIdx){
+  const placed = state.board[cellIdx];
+  const placedRanks = getEffectiveRanks(placed.card, cellIdx);
+  const adj = getAdjacent(cellIdx);
+  let allFlipped = []; // {idx, fromIdx} — which cell flipped and which cell caused it
+
+  // Same & Plus rules
+  let sameFlips = [];
+  let plusFlips = [];
+
+  if(state.rules.same || state.rules.plus){
+    const matchingSame = [];
+    const sums = [];
+
+    adj.forEach(({idx, placedSide, adjSide})=>{
+      const target = state.board[idx];
+      let targetVal, placedVal;
+
+      if(target){
+        const targetRanks = getEffectiveRanks(target.card, idx);
+        placedVal = placedRanks[placedSide];
+        targetVal = targetRanks[adjSide];
+        if(state.rules.same && placedVal === targetVal){
+          matchingSame.push({idx, placedVal, targetVal});
+        }
+        if(state.rules.plus){
+          sums.push({idx, sum: placedVal + targetVal, owner: target.owner});
+        }
+      } else if(state.rules.sameWall){
+      }
+    });
+
+    if(state.rules.same && state.rules.sameWall){
+      const wallAdj = getWallAdjacent(cellIdx);
+      wallAdj.forEach(({placedSide})=>{
+        const placedVal = placedRanks[placedSide];
+        if(placedVal === 10){
+          matchingSame.push({idx:-1, placedVal:10, targetVal:10});
+        }
+      });
+    }
+
+    if(state.rules.same && matchingSame.length >= 2){
+      const opponentMatches = matchingSame.filter(m=> m.idx>=0 && state.board[m.idx] && state.board[m.idx].owner !== placed.owner);
+      if(opponentMatches.length > 0){
+        matchingSame.forEach(m=>{
+          if(m.idx>=0 && state.board[m.idx] && state.board[m.idx].owner !== placed.owner){
+            sameFlips.push(m.idx);
+          }
+        });
+      }
+    }
+
+    if(state.rules.plus){
+      if(state.rules.sameWall){
+        const wallAdj = getWallAdjacent(cellIdx);
+        wallAdj.forEach(({placedSide})=>{
+          sums.push({idx:-1, sum: placedRanks[placedSide] + 10, owner: placed.owner});
+        });
+      }
+      const sumMap = {};
+      sums.forEach(s=>{
+        if(!sumMap[s.sum]) sumMap[s.sum]=[];
+        sumMap[s.sum].push(s);
+      });
+      Object.values(sumMap).forEach(group=>{
+        if(group.length>=2){
+          const hasOpponent = group.some(g=> g.idx>=0 && state.board[g.idx] && state.board[g.idx].owner !== placed.owner);
+          if(hasOpponent){
+            group.forEach(g=>{
+              if(g.idx>=0 && state.board[g.idx] && state.board[g.idx].owner !== placed.owner){
+                plusFlips.push(g.idx);
+              }
+            });
+          }
+        }
+      });
+    }
+  }
+
+  const specialFlips = [...new Set([...sameFlips, ...plusFlips])];
+  specialFlips.forEach(idx=>{
+    state.board[idx].owner = placed.owner;
+    allFlipped.push({idx, fromIdx: cellIdx, special: true});
+  });
+
+  if(state.rules.combo && specialFlips.length > 0){
+    let comboQueue = [...specialFlips];
+    while(comboQueue.length > 0){
+      const ci = comboQueue.shift();
+      const comboCard = state.board[ci];
+      const comboRanks = getEffectiveRanks(comboCard.card, ci);
+      const comboAdj = getAdjacent(ci);
+      comboAdj.forEach(({idx, placedSide, adjSide})=>{
+        const target = state.board[idx];
+        if(target && target.owner !== comboCard.owner){
+          const targetRanks = getEffectiveRanks(target.card, idx);
+          if(comboRanks[placedSide] > targetRanks[adjSide]){
+            state.board[idx].owner = comboCard.owner;
+            if(!allFlipped.find(f=>f.idx===idx)){
+              allFlipped.push({idx, fromIdx: ci, special: true});
+              comboQueue.push(idx);
+            }
+          }
+        }
+      });
+    }
+  }
+
+  // Normal captures
+  adj.forEach(({idx, placedSide, adjSide})=>{
+    const target = state.board[idx];
+    if(target && target.owner !== placed.owner && !allFlipped.find(f=>f.idx===idx)){
+      const targetRanks = getEffectiveRanks(target.card, idx);
+      if(placedRanks[placedSide] > targetRanks[adjSide]){
+        state.board[idx].owner = placed.owner;
+        allFlipped.push({idx, fromIdx: cellIdx, special: false});
+      }
+    }
+  });
+
+  return allFlipped;
+}
+
+function getAdjacent(cellIdx){
+  const row = Math.floor(cellIdx/3), col = cellIdx%3;
+  const adj = [];
+  // Top: placedSide=0 (top of placed), adjSide=2 (bottom of target)
+  if(row>0 && state.board[cellIdx-3]) adj.push({idx:cellIdx-3, placedSide:0, adjSide:2});
+  // Right: placedSide=1, adjSide=3
+  if(col<2 && state.board[cellIdx+1]) adj.push({idx:cellIdx+1, placedSide:1, adjSide:3});
+  // Bottom: placedSide=2, adjSide=0
+  if(row<2 && state.board[cellIdx+3]) adj.push({idx:cellIdx+3, placedSide:2, adjSide:0});
+  // Left: placedSide=3, adjSide=1
+  if(col>0 && state.board[cellIdx-1]) adj.push({idx:cellIdx-1, placedSide:3, adjSide:1});
+  return adj;
+}
+
+function getWallAdjacent(cellIdx){
+  const row = Math.floor(cellIdx/3), col = cellIdx%3;
+  const walls = [];
+  if(row===0) walls.push({placedSide:0}); // top wall
+  if(col===2) walls.push({placedSide:1}); // right wall
+  if(row===2) walls.push({placedSide:2}); // bottom wall
+  if(col===0) walls.push({placedSide:3}); // left wall
+  return walls;
+}
+
+function spawnHeartBurst(targetCellEl, fromCellEl, special=false){
+  // Position hearts on the persistent particle layer
+  const layer = document.getElementById('particle-layer');
+  const board = document.getElementById('board');
+  const boardRect = board.getBoundingClientRect();
+  const targetRect = targetCellEl.getBoundingClientRect();
+  const fromRect = fromCellEl.getBoundingClientRect();
+
+  // Spawn point: the edge where the two cards touch
+  const fromCx = fromRect.left - boardRect.left + fromRect.width/2;
+  const fromCy = fromRect.top - boardRect.top + fromRect.height/2;
+  const toCx = targetRect.left - boardRect.left + targetRect.width/2;
+  const toCy = targetRect.top - boardRect.top + targetRect.height/2;
+
+  // Spawn at the midpoint between the two cell centers (the shared edge)
+  const spawnX = (fromCx + toCx) / 2;
+  const spawnY = (fromCy + toCy) / 2;
+
+  // Direction: from source toward the flipped card
+  const dirX = toCx - fromCx;
+  const dirY = toCy - fromCy;
+  const dirLen = Math.sqrt(dirX*dirX + dirY*dirY) || 1;
+  const ndx = dirX / dirLen;
+  const ndy = dirY / dirLen;
+
+  const burst = document.createElement('div');
+  burst.className = 'heart-burst';
+  burst.style.cssText = `position:absolute; left:${spawnX}px; top:${spawnY}px; width:0; height:0;`;
+  const emojis = special
+    ? ['💖','💗','💕','💘','✨','💜','⭐','🌟','✨','⭐','🌟','💫']
+    : ['💖','💗','💕','💘','💜','💖','💗','💕'];
+  const count = special ? 18 + Math.floor(Math.random()*8) : 12 + Math.floor(Math.random()*5);
+  for(let i=0; i<count; i++){
+    const p = document.createElement('div');
+    p.className = 'heart-particle';
+    p.textContent = emojis[Math.floor(Math.random()*emojis.length)];
+    // Cone spread: mostly in the capture direction, with some scatter
+    const spread = (Math.random()-0.5) * 1.6; // radians of scatter
+    const baseAngle = Math.atan2(ndy, ndx);
+    const angle = baseAngle + spread;
+    const dist = 50 + Math.random()*110;
+    const hx = Math.cos(angle) * dist;
+    const hy = Math.sin(angle) * dist;
+    const hr = (Math.random()-0.5) * 180;
+    p.style.cssText = `left:0; top:0; font-size:${0.8+Math.random()*1.0}rem; --hx:${hx}px; --hy:${hy}px; --hr:${hr}deg; animation-delay:${i*0.05}s;`;
+    burst.appendChild(p);
+  }
+  layer.appendChild(burst);
+  setTimeout(()=> burst.remove(), 2500);
+}
+
+function getFlipDirection(fromIdx, toIdx){
+  const fromRow = Math.floor(fromIdx/3), fromCol = fromIdx%3;
+  const toRow = Math.floor(toIdx/3), toCol = toIdx%3;
+  const dr = toRow - fromRow, dc = toCol - fromCol;
+  // Flip AWAY from the contact: if attacked from left (dc>0), flip rightward
+  if(dc > 0) return 'flip-from-left';   // attacker is left, flip away to right
+  if(dc < 0) return 'flip-from-right';  // attacker is right, flip away to left
+  if(dr > 0) return 'flip-from-top';    // attacker is above, flip away downward
+  if(dr < 0) return 'flip-from-bottom'; // attacker is below, flip away upward
+  return 'flip-from-left'; // fallback
+}
+
+function animateFlips(flippedData, callback){
+  if(flippedData.length===0){ callback(); return; }
+  const cells = document.getElementById('board').children;
+
+  // Group flips into waves: flips sharing the same fromIdx happen simultaneously
+  const waves = [];
+  const seen = new Set();
+  flippedData.forEach(flip=>{
+    if(seen.has(flip.fromIdx)){
+      // Add to the existing wave for this source
+      const wave = waves.find(w=> w.some(f=> f.fromIdx === flip.fromIdx));
+      if(wave) wave.push(flip);
+      else waves.push([flip]);
+    } else {
+      // Check if any flip in the last wave shares this fromIdx
+      const lastWave = waves[waves.length-1];
+      if(lastWave && lastWave[0].fromIdx === flip.fromIdx){
+        lastWave.push(flip);
+      } else {
+        waves.push([flip]);
+      }
+    }
+    seen.add(flip.fromIdx);
+  });
+
+  // Re-group: all flips from the same fromIdx go in the same wave
+  const waveMap = new Map();
+  const waveOrder = [];
+  flippedData.forEach(flip=>{
+    if(!waveMap.has(flip.fromIdx)){
+      waveMap.set(flip.fromIdx, []);
+      waveOrder.push(flip.fromIdx);
+    }
+    waveMap.get(flip.fromIdx).push(flip);
+  });
+  const orderedWaves = waveOrder.map(key=> waveMap.get(key));
+
+  let waveIdx = 0;
+  function playWave(){
+    if(waveIdx >= orderedWaves.length){ callback(); return; }
+    const wave = orderedWaves[waveIdx];
+    let waveDone = 0;
+    wave.forEach(flip=>{
+      const targetCell = cells[flip.idx];
+      const fromCell = cells[flip.fromIdx];
+      const cardEl = targetCell.querySelector('.card');
+      if(cardEl){
+        const flipClass = getFlipDirection(flip.fromIdx, flip.idx);
+        cardEl.classList.add(flipClass);
+        playFlipSound();
+        spawnHeartBurst(targetCell, fromCell, flip.special);
+        setTimeout(()=>{
+          renderGame();
+          waveDone++;
+          if(waveDone === wave.length){
+            waveIdx++;
+            setTimeout(playWave, 150);
+          }
+        }, 500);
+      } else {
+        waveDone++;
+        if(waveDone === wave.length){
+          waveIdx++;
+          setTimeout(playWave, 150);
+        }
+      }
+    });
+  }
+  playWave();
+}
+
+// ── AI LOGIC ──
+function aiTurn(){
+  if(!state.gameActive) return;
+  const move = findBestMove();
+  const card = state.aiHand.splice(move.cardIdx, 1)[0];
+  executePlace(card, move.cellIdx, 'red');
+}
+
+function findBestMove(){
+  const emptyCells = [];
+  state.board.forEach((c,i)=>{ if(!c) emptyCells.push(i); });
+
+  let bestScore = -Infinity;
+  let bestMoves = [];
+
+  state.aiHand.forEach((card, cardIdx)=>{
+    emptyCells.forEach(cellIdx=>{
+      const score = evaluateMove(card, cardIdx, cellIdx);
+      if(score > bestScore){
+        bestScore = score;
+        bestMoves = [{cardIdx, cellIdx}];
+      } else if(score === bestScore){
+        bestMoves.push({cardIdx, cellIdx});
+      }
+    });
+  });
+
+  // Add randomness based on difficulty
+  if(state.difficulty === 'easy' && Math.random() < 0.4){
+    // Random move 40% of the time
+    const rCard = Math.floor(Math.random()*state.aiHand.length);
+    const rCell = emptyCells[Math.floor(Math.random()*emptyCells.length)];
+    return {cardIdx: rCard, cellIdx: rCell};
+  }
+
+  return bestMoves[Math.floor(Math.random()*bestMoves.length)];
+}
+
+function evaluateMove(card, cardIdx, cellIdx){
+  let score = 0;
+
+  // Simulate placement
+  const savedBoard = state.board.map(c=>c?{...c}:null);
+  state.board[cellIdx] = {card, owner:'red'};
+
+  const flipped = simulateCaptures(cellIdx, 'red', card);
+  score += flipped * 10; // Captures are highly valuable
+
+  // Defensive: check vulnerability
+  const ranks = getEffectiveRanks(card, cellIdx);
+  const adj = getAdjacentAll(cellIdx);
+  adj.forEach(({placedSide, adjSide, idx})=>{
+    if(!state.board[idx]){
+      // Empty adjacent cell - check if we're exposed
+      const exposedRank = ranks[placedSide];
+      if(exposedRank <= 3) score -= (4 - exposedRank); // Penalize low exposed ranks
+      if(exposedRank >= 7) score += 1; // Bonus for high exposed ranks
+    }
+  });
+
+  // Corner/edge bonus (fewer exposed sides)
+  const row = Math.floor(cellIdx/3), col = cellIdx%3;
+  const isCorner = (row===0||row===2) && (col===0||col===2);
+  const isEdge = !isCorner && (row===0||row===2||col===0||col===2);
+  if(isCorner) score += 2;
+  else if(isEdge) score += 1;
+
+  // Hard mode: deeper evaluation
+  if(state.difficulty === 'hard'){
+    // Check if placement blocks opponent captures
+    score += flipped * 5;
+    // Prefer using weaker cards early
+    const totalRank = card.ranks.reduce((a,b)=>a+b,0);
+    const cardsLeft = state.aiHand.length;
+    if(cardsLeft > 2) score -= totalRank * 0.3; // Save strong cards
+    else score += totalRank * 0.5; // Use strong cards at end
+  }
+
+  // Restore board
+  state.board = savedBoard;
+  return score;
+}
+
+function simulateCaptures(cellIdx, owner, card){
+  const placed = {card, owner};
+  const placedRanks = getEffectiveRanks(card, cellIdx);
+  let flips = 0;
+  const adj = getAdjacent(cellIdx);
+
+  // Check normal captures
+  adj.forEach(({idx, placedSide, adjSide})=>{
+    const target = state.board[idx];
+    if(target && target.owner !== owner){
+      const targetRanks = getEffectiveRanks(target.card, idx);
+      if(placedRanks[placedSide] > targetRanks[adjSide]) flips++;
+    }
+  });
+
+  // Simplified Same/Plus check for AI
+  if(state.rules.same || state.rules.plus){
+    const matchingSame = [];
+    const sums = [];
+    adj.forEach(({idx, placedSide, adjSide})=>{
+      const target = state.board[idx];
+      if(target){
+        const targetRanks = getEffectiveRanks(target.card, idx);
+        if(state.rules.same && placedRanks[placedSide] === targetRanks[adjSide]){
+          matchingSame.push({idx, owner:target.owner});
+        }
+        if(state.rules.plus){
+          sums.push({idx, sum: placedRanks[placedSide] + targetRanks[adjSide], owner:target.owner});
+        }
+      }
+    });
+    if(state.rules.same && matchingSame.length>=2){
+      const opps = matchingSame.filter(m=>m.owner!==owner);
+      flips += opps.length;
+    }
+    if(state.rules.plus){
+      const sumMap={};
+      sums.forEach(s=>{ if(!sumMap[s.sum])sumMap[s.sum]=[]; sumMap[s.sum].push(s); });
+      Object.values(sumMap).forEach(group=>{
+        if(group.length>=2){
+          flips += group.filter(g=>g.owner!==owner).length;
+        }
+      });
+    }
+  }
+
+  return flips;
+}
+
+function getAdjacentAll(cellIdx){
+  const row = Math.floor(cellIdx/3), col = cellIdx%3;
+  const adj = [];
+  if(row>0) adj.push({idx:cellIdx-3, placedSide:0, adjSide:2});
+  if(col<2) adj.push({idx:cellIdx+1, placedSide:1, adjSide:3});
+  if(row<2) adj.push({idx:cellIdx+3, placedSide:2, adjSide:0});
+  if(col>0) adj.push({idx:cellIdx-1, placedSide:3, adjSide:1});
+  return adj;
+}
+
+// ── GAME END ──
+function endGame(){
+  state.gameActive = false;
+  let blue=0, red=0;
+  state.board.forEach(cell=>{ if(cell){ cell.owner==='blue'?blue++:red++; }});
+  blue += state.playerHand.length;
+  red += state.aiHand.length;
+
+  // Sudden Death
+  if(state.rules.suddenDeath && blue === red){
+    setTimeout(()=>{
+      // Collect cards by current owner for redeal
+      const blueCards = [];
+      const redCards = [];
+      state.board.forEach(cell=>{
+        if(cell){ cell.owner==='blue' ? blueCards.push(cell.card) : redCards.push(cell.card); }
+      });
+      state.playerHand.forEach(c=>blueCards.push(c));
+      state.aiHand.forEach(c=>redCards.push(c));
+
+      // Ensure 5 cards each (borrow from other side if needed due to hand remainder)
+      state.playerHand = blueCards.slice(0,5).map(c=>({...c, owner:'blue'}));
+      state.aiHand = redCards.slice(0,5).map(c=>({...c, owner:'red'}));
+      state.board = Array(9).fill(null);
+      state.selectedCard = null;
+      state.turn = 'blue';
+      state.gameActive = true;
+
+      // Re-randomize elemental cells
+      if(state.rules.elemental){
+        state.boardElements = Array(9).fill(null);
+        const numElements = Math.floor(Math.random()*4)+1;
+        const cells = shuffle([0,1,2,3,4,5,6,7,8]).slice(0, numElements);
+        cells.forEach(ci=>{ state.boardElements[ci] = ELEMENTS[Math.floor(Math.random()*ELEMENTS.length)]; });
+      }
+
+      renderGame();
+    }, 1500);
+
+    // Flash "SUDDEN DEATH" message
+    const overlay = document.getElementById('result-overlay');
+    const txt = document.getElementById('result-text');
+    const sub = document.getElementById('result-sub');
+    txt.textContent = 'SUDDEN DEATH';
+    txt.className = 'draw-text';
+    sub.textContent = 'Draw! Reshuffling cards...';
+    overlay.classList.add('show');
+    overlay.querySelector('.menu-btn').style.display='none';
+    overlay.querySelectorAll('.menu-btn')[1].style.display='none';
+    setTimeout(()=>{
+      overlay.classList.remove('show');
+      overlay.querySelector('.menu-btn').style.display='';
+      overlay.querySelectorAll('.menu-btn')[1].style.display='';
+    }, 2500);
+    return;
+  }
+
+  const overlay = document.getElementById('result-overlay');
+  const txt = document.getElementById('result-text');
+  const sub = document.getElementById('result-sub');
+
+  if(blue > red){
+    txt.textContent = 'VICTORY!';
+    txt.className = 'win-text';
+    sub.textContent = `You win ${blue} to ${red}!`;
+  } else if(red > blue){
+    txt.textContent = 'DEFEAT';
+    txt.className = 'lose-text';
+    sub.textContent = `AI wins ${red} to ${blue}.`;
+  } else {
+    txt.textContent = 'DRAW';
+    txt.className = 'draw-text';
+    sub.textContent = `Tied at ${blue} each.`;
+  }
+  overlay.classList.add('show');
+}
+
+function rematch(){
+  document.getElementById('result-overlay').classList.remove('show');
+  startGame();
+}
+
+// ── UTILITIES ──
+function shuffle(arr){
+  const a=[...arr];
+  for(let i=a.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [a[i],a[j]]=[a[j],a[i]];
+  }
+  return a;
+}
+
+// ── MUSIC ──
+let musicPlaying = false;
+function toggleMusic(){
+  const bgm = document.getElementById('bgm');
+  const btn = document.getElementById('music-btn');
+  if(musicPlaying){
+    bgm.pause();
+    btn.classList.add('muted');
+  } else {
+    bgm.volume = 0.4;
+    bgm.play().catch(()=>{});
+    btn.classList.remove('muted');
+  }
+  musicPlaying = !musicPlaying;
+}
+function startMusic(){
+  if(!musicPlaying){
+    const bgm = document.getElementById('bgm');
+    bgm.volume = 0.4;
+    bgm.play().then(()=>{
+      musicPlaying = true;
+      document.getElementById('music-btn').classList.remove('muted');
+    }).catch(()=>{});
+  }
+}
+
+// ── SOUND EFFECTS ──
+function playSfx(id){
+  try {
+    const el = document.getElementById(id);
+    el.currentTime = 0;
+    el.volume = 0.5;
+    el.play().catch(()=>{});
+  } catch(e){}
+}
+function playPlaceSound(owner){
+  playSfx(owner === 'red' ? 'sfx-card-b' : 'sfx-card-a');
+}
+let audioCtx = null;
+function playSparkleSound(){
+  try {
+    if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    const ctx = audioCtx;
+    // Bright sparkle chime — two quick high-pitched tones
+    [1800, 2400].forEach((freq, i)=>{
+      const t = ctx.currentTime + i * 0.08;
+      const osc = ctx.createOscillator();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(freq, t);
+      osc.frequency.exponentialRampToValueAtTime(freq * 1.5, t + 0.15);
+      const gain = ctx.createGain();
+      gain.gain.setValueAtTime(0.12, t);
+      gain.gain.setValueAtTime(0.14, t + 0.03);
+      gain.gain.exponentialRampToValueAtTime(0.001, t + 0.3);
+      osc.connect(gain); gain.connect(ctx.destination);
+      osc.start(t); osc.stop(t + 0.3);
+    });
+    // Tiny shimmer noise
+    const noise = ctx.createBufferSource();
+    const buf = ctx.createBuffer(1, ctx.sampleRate * 0.15, ctx.sampleRate);
+    const data = buf.getChannelData(0);
+    for(let j=0; j<data.length; j++) data[j] = (Math.random()*2-1) * (j/data.length) * Math.pow(1-j/data.length, 3);
+    noise.buffer = buf;
+    const filt = ctx.createBiquadFilter();
+    filt.type = 'highpass'; filt.frequency.value = 4000;
+    const g2 = ctx.createGain();
+    g2.gain.setValueAtTime(0.06, ctx.currentTime);
+    g2.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.15);
+    noise.connect(filt); filt.connect(g2); g2.connect(ctx.destination);
+    noise.start(); noise.stop(ctx.currentTime + 0.15);
+  } catch(e){}
+}
+
+function playFlipSound(){
+  playSfx('sfx-flip');
+  playSparkleSound();
+}
+
+// ── DEAL-IN ANIMATION ──
+function playShuffleSound(){
+  playSfx('sfx-shuffle');
+}
+
+function dealInAnimation(callback){
+  state.animating = true;
+  const DEAL_STAGGER = 85; // ms between each card
+
+  // Play shuffle sound first
+  playShuffleSound();
+
+  // Get all card elements in both hands
+  const leftCards = document.querySelectorAll('#player-hand .hand-stack .card');
+  const rightCards = document.querySelectorAll('#ai-hand .hand-stack .card');
+  const totalCards = leftCards.length + rightCards.length;
+  let dealt = 0;
+
+  // Alternate dealing: left, right, left, right...
+  const dealOrder = [];
+  const maxLen = Math.max(leftCards.length, rightCards.length);
+  for(let i=0; i<maxLen; i++){
+    if(i < leftCards.length) dealOrder.push({el: leftCards[i], side: 'left'});
+    if(i < rightCards.length) dealOrder.push({el: rightCards[i], side: 'right'});
+  }
+
+  dealOrder.forEach((item, i)=>{
+    const delay = 280 + i * DEAL_STAGGER; // initial pause after shuffle sound
+    item.el.style.opacity = '0';
+    setTimeout(()=>{
+      item.el.style.opacity = '';
+      item.el.classList.add(item.side === 'left' ? 'deal-left' : 'deal-right');
+      dealt++;
+      if(dealt === totalCards){
+        // All cards dealt — clean up and enable play
+        setTimeout(()=>{
+          dealOrder.forEach(d => {
+            d.el.classList.remove('deal-left','deal-right');
+          });
+          state.animating = false;
+          if(callback) callback();
+        }, 500);
+      }
+    }, delay);
+  });
+}
+
+// ── INIT ──
+showScreen('title-screen');
+</script>
+</body>
+</html>
