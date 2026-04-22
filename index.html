@@ -3247,6 +3247,13 @@ const TUT_LESSONS = [
     ]
   },
   // ── LESSON 5: COMBO ──
+  // Maths: Player Adept A [5,5,3,5] at cell 4.
+  //   Reaper Ω at cell 3: right=5 → matches player left=5 (Same pair 1)
+  //   Reaper Ψ at cell 5: left=5  → matches player right=5 (Same pair 2)
+  //   Same triggers → cells 3 & 5 flip to blue.
+  //   Player left=5 vs Ω right=5: EQUAL, not basic. Same only. ✓
+  //   Player right=5 vs Ψ left=5: EQUAL, not basic. Same only. ✓
+  //   Combo from cell 3 (now blue): Ω bottom=7 vs Φ top=2 at cell 6 → 7>2 → COMBO FLIP! ✓
   {
     title: 'Combo',
     desc: 'Chain captures after Same or Plus',
@@ -3259,7 +3266,7 @@ const TUT_LESSONS = [
       makeTutCard('Adept E', 6, 4, 5, 3, 'cards_web/Rowan_Alt4.jpg'),
     ],
     reaperHand: [
-      makeTutCard('Reaper Ω', 3, 5, 4, 2, ''),
+      makeTutCard('Reaper Ω', 3, 5, 7, 2, ''),
       makeTutCard('Reaper Ψ', 2, 3, 3, 5, ''),
       makeTutCard('Reaper Φ', 2, 4, 5, 6, ''),
       makeTutCard('Reaper Χ', 3, 4, 6, 2, ''),
@@ -3271,18 +3278,16 @@ const TUT_LESSONS = [
       {type:'dialogue', text:"It's a chain reaction. Same or Plus flips a card, that card checks its neighbours, flips more cards, and those cards check THEIR neighbours. Dominoes, love. Beautiful, devastating dominoes."},
       {type:'dialogue', text:"Combo only starts from Same or Plus — basic captures don't chain. But once that first special capture triggers, the chain uses normal rank comparison for everything after."},
       {type:'dialogue', text:"Let me set up the board. This'll be worth watching, I promise."},
-      {type:'reaper_move', card:0, cell:3, text:"One on the middle-left. Its right rank is 5. Remember that."},
-      {type:'reaper_move', card:0, cell:5, text:"One on the middle-right. Its left rank is 5. Two fives flanking the centre — sound familiar?"},
-      {type:'reaper_move', card:0, cell:0, text:"And one in the top-left corner. Its bottom rank is 5. This one is next to my middle-left card. Keep that in mind."},
-      {type:'dialogue', text:"Right. Three of my cards are out. My left and right cards both have 5 touching the centre. If you trigger Same there, those cards flip to you."},
-      {type:'dialogue', text:"But here's the clever bit — my top-left card has a bottom of 5. When my middle-left card flips to your colour, YOUR newly captured card's top rank is 3. My top-left card's bottom is 5. Normally that wouldn't help you. BUT..."},
-      {type:'dialogue', text:"Actually, wait. Let me reconsider. Your card's LEFT is 5, matching my left card's right of 5. Your RIGHT is 5, matching my right card's left of 5. Same triggers, both flip. Then the left card — now yours — has TOP of 3. My corner card's BOTTOM is 5. 3 doesn't beat 5, so no chain there."},
-      {type:'dialogue', text:"Hmm. But the left card also has a BOTTOM of 4. If there were a card below it, and that card's top was lower than 4... well, you get the idea. Combo checks ALL sides of every flipped card."},
-      {type:'dialogue', text:"The important thing is this: Same flips two cards, and those cards IMMEDIATELY check their neighbours. If they win any comparison, the chain continues. That's Combo."},
-      {type:'dialogue', text:"Go ahead — place your first card in the centre. Watch Same trigger, then watch the captured cards check their surroundings."},
+      {type:'reaper_move', card:0, cell:3, text:"One on the middle-left. Its right rank is 5, and its bottom rank is 7. Both numbers will matter in a moment."},
+      {type:'reaper_move', card:0, cell:5, text:"One on the middle-right. Its left rank is 5. Two cards flanking the centre, both with 5 on the touching side."},
+      {type:'reaper_move', card:0, cell:6, text:"And one in the bottom-left corner. Its top rank is only 2. Seems safe down there, doesn't it? We'll see about that."},
+      {type:'dialogue', text:"Right. Three of my cards are on the board. The left and right cards both have 5 touching the centre cell. Your first card has 5 on both its left AND its right side."},
+      {type:'dialogue', text:"When you place it in the centre, your left 5 matches my left card's right 5. Your right 5 matches my right card's left 5. That's two matching pairs — Same triggers and both flip to your colour!"},
+      {type:'dialogue', text:"But here's the beautiful part. After Same flips my left card, that card is now YOURS. And YOUR card has a bottom rank of 7. My card in the bottom-left corner? Its top rank is only 2. Your 7 crushes my 2 — and the chain continues! That's Combo."},
+      {type:'dialogue', text:"One placement. Three captures. Same flips two, then Combo chains a third. Go on — place your card in the centre and watch the dominoes fall."},
       {type:'player_move', card:0, cell:4, hint:"Select the top card in your hand and place it in the centre cell."},
-      {type:'dialogue', text:"SAME triggered! Both flanking cards flipped to your colour. The Combo rule then checked their other sides — in this case, the top-left card's bottom of 5 beats the newly-captured left card's top of 3... wait, that's backwards. The chain goes FROM captured cards OUTWARD."},
-      {type:'dialogue', text:"The point is: Combo gives you bonus captures every time Same or Plus fires. The more cards surrounding the flip zone, the more devastating the chain. Set up your board wisely and you can flip three, four, even five cards in a single move."},
+      {type:'dialogue', text:"MAGNIFICENT! Same triggered first — both flanking cards flipped to blue. Then Combo kicked in: your newly captured left card checked its bottom side. A 7 against my corner card's measly 2. Flipped! Three cards captured in one move!"},
+      {type:'dialogue', text:"That's the power of Combo. Same or Plus starts the chain, and then every captured card checks its neighbours with basic rank comparison. The chain keeps going until there's nothing left to flip."},
       {type:'dialogue', text:"Well then. You've learned everything I can teach you. Basic capture, Same, Plus, Same Wall, and Combo. You're as ready as you'll ever be."},
       {type:'dialogue', text:"Do try not to lose too badly out there, won't you? It would reflect rather poorly on my teaching. And I have a reputation to maintain."},
       {type:'dialogue', text:"Oh, and one more thing — if you ever fancy a rematch, you know where to find me. I'm always here. Comes with the territory, being Death and all. Toodle-oo, love."},
