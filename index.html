@@ -877,6 +877,28 @@
     color:#ccc; margin-bottom:2rem; text-align:center; max-width:400px;
   }
 
+  /* ── RULE ANNOUNCE BUBBLE ── */
+  .rule-announce {
+    position:fixed; top:50%; left:50%; transform:translate(-50%,-50%) scale(0.3);
+    z-index:75; pointer-events:none;
+    font-family:'Orbitron',sans-serif; font-size:2.4rem; font-weight:900;
+    letter-spacing:6px; text-transform:uppercase;
+    color:#fff; text-shadow:0 0 20px currentColor, 0 0 40px currentColor, 0 2px 8px rgba(0,0,0,0.6);
+    opacity:0; animation:ruleAnnounce 1.6s ease-out forwards;
+  }
+  .rule-announce.same { color:#00e5ff; }
+  .rule-announce.plus { color:#ff6ec7; }
+  .rule-announce.same-wall { color:#FFD700; }
+  .rule-announce.combo { color:#ff4444; }
+  @keyframes ruleAnnounce {
+    0%   { opacity:0; transform:translate(-50%,-50%) scale(0.3); }
+    15%  { opacity:1; transform:translate(-50%,-50%) scale(1.15); }
+    30%  { transform:translate(-50%,-50%) scale(0.95); }
+    45%  { opacity:1; transform:translate(-50%,-50%) scale(1.05); }
+    70%  { opacity:1; transform:translate(-50%,-50%) scale(1); }
+    100% { opacity:0; transform:translate(-50%,-50%) scale(1); }
+  }
+
   /* ── UWU EASTER EGG ── */
   @keyframes uwuPop {
     0%   { opacity:0; transform:translate(-50%,-50%) scale(0.5); }
@@ -2180,6 +2202,15 @@ function executePlace(card, cellIdx, owner){
   }, 200);
 }
 
+// ── RULE ANNOUNCE ──
+function announceRule(ruleName){
+  const el = document.createElement('div');
+  el.className = 'rule-announce ' + ruleName.toLowerCase().replace(/\s+/g,'-');
+  el.textContent = ruleName;
+  document.body.appendChild(el);
+  setTimeout(()=> el.remove(), 1800);
+}
+
 // ── CAPTURE LOGIC ──
 function processCaptures(cellIdx){
   const placed = state.board[cellIdx];
@@ -2226,6 +2257,9 @@ function processCaptures(cellIdx){
     if(state.rules.same && matchingSame.length >= 2){
       const opponentMatches = matchingSame.filter(m=> m.idx>=0 && state.board[m.idx] && state.board[m.idx].owner !== placed.owner);
       if(opponentMatches.length > 0){
+        const hasWallMatch = matchingSame.some(m=> m.idx===-1);
+        if(hasWallMatch && state.rules.sameWall) announceRule('Same Wall');
+        else announceRule('Same');
         matchingSame.forEach(m=>{
           if(m.idx>=0 && state.board[m.idx] && state.board[m.idx].owner !== placed.owner){
             sameFlips.push(m.idx);
@@ -2246,10 +2280,12 @@ function processCaptures(cellIdx){
         if(!sumMap[s.sum]) sumMap[s.sum]=[];
         sumMap[s.sum].push(s);
       });
+      let plusTriggered = false;
       Object.values(sumMap).forEach(group=>{
         if(group.length>=2){
           const hasOpponent = group.some(g=> g.idx>=0 && state.board[g.idx] && state.board[g.idx].owner !== placed.owner);
           if(hasOpponent){
+            if(!plusTriggered){ announceRule('Plus'); plusTriggered = true; }
             group.forEach(g=>{
               if(g.idx>=0 && state.board[g.idx] && state.board[g.idx].owner !== placed.owner){
                 plusFlips.push(g.idx);
@@ -2268,6 +2304,7 @@ function processCaptures(cellIdx){
   });
 
   if(state.rules.combo && specialFlips.length > 0){
+    let comboAnnounced = false;
     let comboQueue = [...specialFlips];
     while(comboQueue.length > 0){
       const ci = comboQueue.shift();
@@ -2281,6 +2318,7 @@ function processCaptures(cellIdx){
           if(comboRanks[placedSide] > targetRanks[adjSide]){
             state.board[idx].owner = comboCard.owner;
             if(!allFlipped.find(f=>f.idx===idx)){
+              if(!comboAnnounced){ setTimeout(()=>announceRule('Combo'), 400); comboAnnounced = true; }
               allFlipped.push({idx, fromIdx: ci, special: true});
               comboQueue.push(idx);
             }
@@ -3006,7 +3044,7 @@ function showDialogueWaitForMove(text){
   const textEl = document.getElementById('tut-dialogue-text');
   const hint = document.getElementById('tut-dialogue-hint');
   box.classList.add('visible');
-  box.style.pointerEvents = 'auto';
+  box.style.pointerEvents = 'none';
   hint.textContent = '';
   tutFullText = text;
   tutTyping = true;
@@ -3023,19 +3061,9 @@ function showDialogueWaitForMove(text){
       tutTyping = false;
       hint.textContent = 'MAKE YOUR MOVE';
       hint.classList.add('blink');
-      box.style.pointerEvents = 'none';
     }
   }, 28);
-  box.onclick = ()=>{
-    if(tutTyping){
-      clearInterval(tutTypeTimer);
-      textEl.textContent = tutFullText;
-      tutTyping = false;
-      hint.textContent = 'MAKE YOUR MOVE';
-      hint.classList.add('blink');
-      box.style.pointerEvents = 'none';
-    }
-  };
+  box.onclick = null;
 }
 
 function hideDialogue(){
@@ -3112,15 +3140,15 @@ const TUT_LESSONS = [
     desc: 'Capturing with matching ranks',
     rules: {same:true},
     playerHand: [
-      makeTutCard('Cadet A', 5, 5, 3, 4, 'cards_web/Abella_Original.jpg'),
-      makeTutCard('Cadet B', 3, 4, 6, 5, 'cards_web/Naia_Original.jpg'),
+      makeTutCard('Cadet A', 5, 3, 3, 5, 'cards_web/Abella_Original.jpg'),
+      makeTutCard('Cadet B', 3, 4, 6, 2, 'cards_web/Naia_Original.jpg'),
       makeTutCard('Cadet C', 4, 7, 2, 3, 'cards_web/Rowan_Original.jpg'),
       makeTutCard('Cadet D', 6, 3, 5, 2, 'cards_web/Vivienne_Original.jpg'),
       makeTutCard('Cadet E', 2, 5, 4, 7, 'cards_web/Cecilia.jpg'),
     ],
     reaperHand: [
       makeTutCard('Reaper A', 3, 4, 5, 6, ''),
-      makeTutCard('Reaper B', 5, 2, 4, 3, ''),
+      makeTutCard('Reaper B', 5, 5, 4, 3, ''),
       makeTutCard('Reaper C', 4, 6, 3, 5, ''),
       makeTutCard('Reaper D', 2, 3, 6, 4, ''),
       makeTutCard('Reaper E', 6, 5, 2, 1, ''),
@@ -3131,15 +3159,15 @@ const TUT_LESSONS = [
       {type:'dialogue', text:"Here's how it works: when you place a card and two or more of its sides have the SAME rank as the touching sides of adjacent cards — regardless of who owns them — those cards are captured."},
       {type:'dialogue', text:"It doesn't matter if the numbers are high or low. What matters is that they MATCH on two or more sides. Equal ranks. Same. Hence the rather unimaginative name."},
       {type:'dialogue', text:"Let me set up the board, and then I'll walk you through it. Watch carefully."},
-      {type:'reaper_move', card:0, cell:1, text:"I'll put this one in the top centre. Note its bottom rank — that's a 5."},
-      {type:'reaper_move', card:0, cell:3, text:"And another one here on the left. Its right rank is a 2. Remember these numbers."},
-      {type:'dialogue', text:"Now then. You see the centre cell? If you place a card there whose TOP matches my top card's BOTTOM, and whose LEFT matches my left card's RIGHT, you'll trigger Same."},
-      {type:'dialogue', text:"Your first card has a 5 on top and a 4 on the left. My top card's bottom is 5 — that matches! But my left card's right is 2, and your left is 4. That doesn't match. So no Same there."},
-      {type:'dialogue', text:"But your second card — the one with 3 on top and 5 on the left. Hmm, that doesn't match either. Tricky, isn't it?"},
-      {type:'dialogue', text:"Actually, let's just try it. Place your FIRST card — the one with 5 on top — in the centre. It'll match the top card, and we'll see what happens with the other side."},
-      {type:'player_move', card:0, cell:4, hint:"Select Cadet A and place it in the centre cell."},
-      {type:'dialogue', text:"There! Your top rank is 5, my card above has a bottom rank of 5. That's one matching pair. For Same to trigger, you need at least two matching pairs touching. We only got one this time."},
-      {type:'dialogue', text:"But see how powerful this could be? If both sides had matched, you would have captured BOTH my cards in a single placement. No need for higher numbers — just matching ones."},
+      {type:'reaper_move', card:0, cell:1, text:"I'll put this one in the top centre. Note its bottom rank — that's a 5. Remember that number."},
+      {type:'reaper_move', card:0, cell:3, text:"And another one here on the middle-left. Its right rank is also a 5. Two fives, touching the centre cell from different directions. Interesting, yeah?"},
+      {type:'dialogue', text:"Now then. Look at the centre cell. My top card's bottom is 5, and my left card's right is 5. If you place a card there whose TOP is 5 AND whose LEFT is 5, both sides match — and Same triggers."},
+      {type:'dialogue', text:"Have a look at your first card. Top rank is 5, left rank is 5. That's a perfect fit, love. Both sides will match my cards' touching ranks."},
+      {type:'dialogue', text:"Go on then. Place your first card in the centre cell and watch the magic happen."},
+      {type:'player_move', card:0, cell:4, hint:"Select the top card in your hand and place it in the centre cell."},
+      {type:'dialogue', text:"BOOM! Did you see that? Your top matched my card's bottom — 5 and 5. Your left matched my other card's right — 5 and 5. Two matching pairs! Same triggered, and BOTH my cards flipped to your colour!"},
+      {type:'dialogue', text:"Notice that your card's ranks weren't even higher than mine. In a normal capture, my cards would have been safe. But Same doesn't care about who's bigger — only that the touching ranks are equal."},
+      {type:'dialogue', text:"That's what makes Same so devastating. You can flip cards that would normally be impossible to capture, as long as you find matching numbers on two or more sides."},
       {type:'dialogue', text:"Same is what separates the clever players from the merely adequate ones. It's not about brute force — it's about positioning. Rather like life, really. Or death. I would know."},
       {type:'dialogue', text:"Splendid work, love. Next time, I'll teach you the Plus rule — it's Same's slightly more mathematical cousin. Do bring a calculator. I'm joking. Mostly."},
       {type:'end'}
@@ -3151,35 +3179,34 @@ const TUT_LESSONS = [
     desc: 'Capturing with equal sums',
     rules: {plus:true},
     playerHand: [
-      makeTutCard('Pupil A', 4, 2, 5, 7, 'cards_web/Abella_Alt1.jpg'),
-      makeTutCard('Pupil B', 3, 6, 2, 4, 'cards_web/Rowan_Alt1.jpg'),
-      makeTutCard('Pupil C', 5, 3, 7, 2, 'cards_web/Kitsune.jpg'),
-      makeTutCard('Pupil D', 6, 4, 3, 5, 'cards_web/Naga.jpg'),
-      makeTutCard('Pupil E', 2, 7, 4, 3, 'cards_web/Tink.jpg'),
+      makeTutCard('Pupil A', 3, 6, 5, 4, 'cards_web/Abella_Alt1.jpg'),
+      makeTutCard('Pupil B', 5, 4, 2, 3, 'cards_web/Rowan_Alt1.jpg'),
+      makeTutCard('Pupil C', 4, 3, 7, 2, 'cards_web/Kitsune.jpg'),
+      makeTutCard('Pupil D', 6, 2, 3, 5, 'cards_web/Naga.jpg'),
+      makeTutCard('Pupil E', 2, 7, 4, 6, 'cards_web/Tink.jpg'),
     ],
     reaperHand: [
-      makeTutCard('Reaper X', 3, 4, 5, 6, ''),
-      makeTutCard('Reaper Y', 5, 2, 3, 4, ''),
-      makeTutCard('Reaper Z', 4, 5, 6, 3, ''),
+      makeTutCard('Reaper X', 4, 5, 6, 2, ''),
+      makeTutCard('Reaper Y', 7, 2, 4, 3, ''),
+      makeTutCard('Reaper Z', 3, 6, 5, 4, ''),
       makeTutCard('Reaper W', 6, 3, 2, 5, ''),
-      makeTutCard('Reaper V', 2, 6, 4, 1, ''),
+      makeTutCard('Reaper V', 2, 4, 3, 1, ''),
     ],
     steps: [
       {type:'dialogue', text:"Ah, you're back. I was beginning to think you'd shuffled off this mortal coil. That's my job, incidentally."},
       {type:'dialogue', text:"Right, Plus. It's like Same, but with addition. When you place a card, look at each pair of touching ranks — your rank plus the adjacent card's rank. If two or more of those SUMS are equal, you capture those cards."},
-      {type:'dialogue', text:"For example, if your top is 4 and the enemy's bottom is 3, that sum is 7. If your left is 2 and the enemy's right is 5, that's ALSO 7. Same sum on two sides — Plus triggers, both cards captured."},
+      {type:'dialogue', text:"For example, if your top is 3 and the enemy's bottom is 6, that sum is 9. If your right is 6 and the enemy's left is 3, that's ALSO 9. Same sum on two sides — Plus triggers, both cards captured."},
       {type:'dialogue', text:"It's a bit more maths than Same, but the payoff is enormous. You can capture cards that seem completely safe because their individual ranks are higher."},
-      {type:'dialogue', text:"Let me arrange the board, then you'll see it in action."},
-      {type:'reaper_move', card:0, cell:1, text:"One up top. Bottom rank is 5. Keep that number in your head."},
-      {type:'reaper_move', card:0, cell:5, text:"And one to the right of centre. Left rank is 4. Now think about what adds up."},
-      {type:'dialogue', text:"The centre cell is open. You need a card where: your TOP + my BOTTOM = your RIGHT + my LEFT. In other words, your top + 5 should equal your right + 4."},
-      {type:'dialogue', text:"Have a look at your first card — 4 on top, 2 on the right. That's 4+5=9 on top, and 2+4=6 on the right. Not equal. No Plus."},
-      {type:'dialogue', text:"Your third card — 5 on top, 3 on the right. That's 5+5=10 up top, 3+4=7 on the right. Still not equal. Blast."},
-      {type:'dialogue', text:"Sometimes Plus doesn't line up perfectly in a lesson, and that's quite alright. The important thing is you understand the CONCEPT: matching sums, not matching ranks."},
-      {type:'dialogue', text:"Go ahead and place your first card in the centre. Even without Plus triggering, you'll see the sums calculated."},
-      {type:'player_move', card:0, cell:4, hint:"Select Pupil A and place it in the centre cell."},
-      {type:'dialogue', text:"Right. No Plus this time — the sums didn't match. But you can see how it WOULD work. It's all about finding that sweet spot where the arithmetic lines up on two or more sides."},
-      {type:'dialogue', text:"Plus rewards careful planning. Before you place a card, look at the adjacent numbers and do the addition. When those sums align — that's when you strike."},
+      {type:'dialogue', text:"Let me arrange the board. Watch the numbers carefully."},
+      {type:'reaper_move', card:0, cell:1, text:"One up top. Its bottom rank is 6. Hold that number."},
+      {type:'reaper_move', card:0, cell:5, text:"And one to the right of centre. Its left rank is 3. Now — 6 and 3. What adds up to what?"},
+      {type:'dialogue', text:"Look at the centre cell. My top card's bottom is 6, my right card's left is 3. For Plus, you need: your TOP + 6 = your RIGHT + 3."},
+      {type:'dialogue', text:"Your first card has 3 on top and 6 on the right. Let's check: 3 + 6 = 9 up top. 6 + 3 = 9 on the right. Both sums are 9! That's Plus, love!"},
+      {type:'dialogue', text:"Go on then. Place your first card in the centre and watch both my cards flip."},
+      {type:'player_move', card:0, cell:4, hint:"Select the top card in your hand and place it in the centre cell."},
+      {type:'dialogue', text:"PLUS! Both sums came out to 9 — your top 3 plus my bottom 6, and your right 6 plus my left 3. Equal sums on two sides means both cards are captured!"},
+      {type:'dialogue', text:"Notice that the individual ranks don't matter for Plus. My bottom rank of 6 was higher than your top of 3 — normally that means I'd capture YOU. But Plus doesn't care who's bigger. It only cares that the sums match."},
+      {type:'dialogue', text:"That's what makes Plus so sneaky. Cards that look completely safe can be flipped if you find the right arithmetic. Always check the sums before you place."},
       {type:'dialogue', text:"Next lesson: Same Wall. The edges of the board have a few tricks up their sleeve. Rather like me. Cheerio for now, love."},
       {type:'end'}
     ]
@@ -3314,21 +3341,23 @@ function runTutStep(){
   else if(step.type === 'player_move'){
     tutExpectedCard = step.card;
     tutExpectedCell = step.cell;
+    state.turn = 'blue';
+    renderGame();
     // Highlight the expected card and cell
     highlightTutTargets(step.card, step.cell);
     showDialogueWaitForMove(step.hint || 'Make your move.');
   }
   else if(step.type === 'reaper_move'){
     showDialogue(step.text, ()=>{
-      // Execute the Reaper's move
+      // Execute the Reaper's move through executePlace for proper capture animations
       const card = state.aiHand.splice(step.card, 1)[0];
-      state.board[step.cell] = {card, owner:'red'};
-      playPlaceSound('red');
-      renderGame();
+      state.turn = 'red';
+      executePlace(card, step.cell, 'red');
       setTimeout(()=>{
+        state.turn = 'blue';
         tutStep++;
         runTutStep();
-      }, 600);
+      }, 1200);
     });
   }
   else if(step.type === 'end'){
