@@ -1928,7 +1928,7 @@ function renderBoard(){
     // Click placement (fallback)
     cell.onclick = ()=> placeCard(i);
     // Drop placement
-    if(!state.board[i]){
+    if(!state.board[i] && !tutMode){
       cell.ondragover = (e)=>{ e.preventDefault(); e.dataTransfer.dropEffect='move'; cell.classList.add('drop-hover'); };
       cell.ondragleave = ()=>{ cell.classList.remove('drop-hover'); };
       cell.ondrop = (e)=>{
@@ -1969,8 +1969,9 @@ function renderHand(containerId, hand, owner){
       // Click fallback
       el.onclick = ()=> selectCard(idx);
       if(state.selectedCard===idx) el.classList.add('selected');
-      // Drag support
-      el.draggable = true;
+      // Drag support (disabled in tutorial)
+      if(tutMode){ el.draggable = false; }
+      else { el.draggable = true; }
       el.classList.add('draggable');
       el.ondragstart = (e)=>{
         state.draggingCardIdx = idx;
@@ -3051,6 +3052,7 @@ const WRONG_MOVE_LINES = [
   "I admire the independent spirit, truly I do. But I did rather specifically suggest a different move.",
   "You know, in my line of work, people who don't follow instructions tend to arrive at my door rather sooner than expected.",
   "I've been doing this since before your sun had its first proper flare, dear. Trust the process.",
+  "Good lord. You're worse than Jenny. And believe me, that is NOT a compliment.",
 ];
 
 // ── LESSON DEFINITIONS ──
