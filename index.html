@@ -574,6 +574,305 @@
     .tut-diagram { flex:none; width:100%; min-height:200px; }
   }
 
+  /* ── COLLECTION / DECK BUILDER ── */
+  #collection-screen {
+    min-height:100vh; padding:1rem;
+    flex-direction:column; align-items:center;
+    animation:fadeIn 0.4s;
+    background-image:
+      radial-gradient(ellipse at 30% 20%, rgba(80,40,160,0.15) 0%, transparent 50%),
+      radial-gradient(ellipse at 70% 80%, rgba(160,60,120,0.1) 0%, transparent 50%);
+  }
+  .coll-layout {
+    width:100%; max-width:900px; margin:0 auto;
+    display:flex; flex-direction:column; gap:12px;
+  }
+  .coll-header {
+    display:flex; align-items:center; justify-content:space-between;
+    padding:0.5rem 0;
+  }
+  .coll-back-btn {
+    font-family:'Orbitron',sans-serif; font-size:0.75rem; font-weight:700;
+    color:#c8a0ff; background:rgba(80,50,140,0.4);
+    border:1px solid rgba(100,200,230,0.25); border-radius:8px;
+    padding:8px 16px; cursor:pointer; transition:all 0.2s;
+  }
+  .coll-back-btn:hover { background:rgba(80,50,140,0.6); border-color:rgba(100,200,230,0.5); }
+  .coll-title {
+    font-family:'Orbitron',sans-serif; font-size:1.3rem; font-weight:900;
+    background:linear-gradient(135deg, #ff6b9d, #c44dff, #6b9dff);
+    -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+    letter-spacing:3px;
+  }
+  .coll-card-count {
+    font-family:'Orbitron',sans-serif; font-size:0.7rem; color:rgba(100,200,230,0.6); letter-spacing:1px;
+  }
+
+  /* Deck tabs */
+  .deck-tabs {
+    display:flex; gap:6px; padding:4px 0;
+  }
+  .deck-tab {
+    font-family:'Orbitron',sans-serif; font-size:0.65rem; font-weight:700;
+    padding:8px 16px; border-radius:8px 8px 0 0;
+    background:rgba(80,50,140,0.25); border:1px solid rgba(100,200,230,0.15);
+    border-bottom:none; color:rgba(200,180,230,0.6); cursor:pointer; transition:all 0.2s;
+    letter-spacing:1px; position:relative;
+  }
+  .deck-tab:hover { background:rgba(80,50,140,0.4); color:#c8a0ff; }
+  .deck-tab.active {
+    background:rgba(60,30,100,0.7); border-color:rgba(100,200,230,0.35);
+    color:#c8a0ff;
+  }
+  .deck-tab.locked { opacity:0.3; }
+  .deck-tab .tab-lock { margin-left:4px; font-size:0.6rem; }
+  .deck-tab.equipped { border-color:rgba(255,215,0,0.35); }
+  .deck-tab.equipped .tab-equip {
+    color:#FFD700; margin-left:4px; font-size:0.6rem;
+    filter:drop-shadow(0 0 3px rgba(255,215,0,0.5));
+  }
+  .deck-tab.equipped.active { border-color:rgba(255,215,0,0.5); background:rgba(60,30,100,0.7); }
+
+  /* Deck display */
+  .deck-display {
+    background:linear-gradient(160deg, rgba(60,30,100,0.6), rgba(40,20,80,0.6));
+    border:1px solid rgba(100,200,230,0.2);
+    border-radius:0 12px 12px 12px; padding:16px;
+    min-height:170px; display:flex; flex-direction:column; align-items:center; justify-content:center;
+    box-shadow:inset 0 0 40px rgba(60,30,100,0.3);
+  }
+  .deck-slots {
+    display:flex; gap:12px; justify-content:center; flex-wrap:wrap;
+  }
+  .deck-slot {
+    width:100px; height:130px; border-radius:8px;
+    border:2px dashed rgba(100,200,230,0.2);
+    background:rgba(80,50,140,0.2);
+    display:flex; align-items:center; justify-content:center;
+    position:relative; cursor:pointer; transition:all 0.2s;
+    overflow:hidden;
+  }
+  .deck-slot:hover { border-color:rgba(255,150,200,0.5); background:rgba(255,150,200,0.08); }
+  .deck-slot.filled {
+    border-style:solid; border-color:rgba(100,200,230,0.3);
+    background:rgba(80,50,140,0.15);
+  }
+  .deck-slot .slot-empty {
+    font-family:'Orbitron',sans-serif; font-size:1.4rem;
+    color:rgba(100,200,230,0.2);
+  }
+  .deck-slot .slot-card {
+    width:100%; height:100%; position:relative; border-radius:6px; overflow:hidden;
+  }
+  .deck-slot .slot-card img {
+    width:100%; height:100%; object-fit:cover; object-position:center top;
+    opacity:0.85; border-radius:6px;
+  }
+  .deck-slot .slot-card .slot-ranks {
+    position:absolute; top:2px; left:2px;
+    width:30px; height:30px; z-index:3;
+  }
+  .deck-slot .slot-card .slot-rank {
+    position:absolute; font-family:'Orbitron',sans-serif; font-size:0.5rem; font-weight:900;
+    color:#fff; text-shadow:0 1px 3px rgba(0,0,0,0.9), 0 0 6px rgba(0,0,0,0.7);
+    line-height:1; text-align:center; width:12px;
+  }
+  .deck-slot .slot-card .slot-rank.r-top { top:0; left:50%; transform:translateX(-50%); }
+  .deck-slot .slot-card .slot-rank.r-right { right:0; top:50%; transform:translateY(-50%); }
+  .deck-slot .slot-card .slot-rank.r-bottom { bottom:0; left:50%; transform:translateX(-50%); }
+  .deck-slot .slot-card .slot-rank.r-left { left:0; top:50%; transform:translateY(-50%); }
+  .deck-slot .slot-remove {
+    position:absolute; top:4px; right:4px; z-index:5;
+    width:18px; height:18px; border-radius:50%;
+    background:rgba(244,67,54,0.8); color:#fff;
+    font-size:0.6rem; display:flex; align-items:center; justify-content:center;
+    opacity:0; transition:opacity 0.2s; cursor:pointer;
+    font-weight:700;
+  }
+  .deck-slot:hover .slot-remove { opacity:1; }
+  .deck-slot .slot-name {
+    position:absolute; bottom:0; left:0; right:0;
+    background:linear-gradient(transparent, rgba(0,0,0,0.8));
+    padding:2px 4px; font-size:0.5rem; color:#ddd;
+    text-align:center; font-family:'Rajdhani',sans-serif; font-weight:600;
+  }
+
+  /* Locked deck message */
+  .deck-locked-msg {
+    text-align:center; color:rgba(100,200,230,0.4);
+    font-family:'Orbitron',sans-serif; font-size:0.8rem;
+    letter-spacing:1px;
+  }
+  .deck-locked-msg .lock-icon { font-size:2rem; margin-bottom:8px; display:block; opacity:0.5; }
+  .deck-locked-msg .lock-req {
+    font-size:0.65rem; color:rgba(200,180,230,0.4); margin-top:6px;
+    font-family:'Rajdhani',sans-serif; letter-spacing:0;
+  }
+
+  /* Filter bar */
+  .coll-filters {
+    display:flex; gap:4px; flex-wrap:wrap; align-items:center; padding:4px 0;
+  }
+  .coll-filter-btn {
+    font-family:'Orbitron',sans-serif; font-size:0.55rem; font-weight:700;
+    padding:6px 10px; border-radius:6px;
+    background:rgba(80,50,140,0.25); border:1px solid rgba(100,200,230,0.15);
+    color:rgba(200,180,230,0.6); cursor:pointer; transition:all 0.2s; letter-spacing:0.5px;
+  }
+  .coll-filter-btn:hover { background:rgba(80,50,140,0.4); color:#c8a0ff; border-color:rgba(100,200,230,0.3); }
+  .coll-filter-btn.active {
+    background:rgba(255,150,200,0.15); border-color:rgba(255,150,200,0.4); color:#ff9dc4;
+  }
+  .coll-filter-sep { color:rgba(100,200,230,0.15); margin:0 4px; }
+
+  /* Card grid */
+  .coll-grid {
+    display:grid;
+    grid-template-columns:repeat(auto-fill, minmax(100px, 1fr));
+    gap:10px; padding:8px 0 2rem;
+    max-height:50vh; overflow-y:auto;
+    scrollbar-width:thin; scrollbar-color:rgba(100,200,230,0.2) transparent;
+  }
+  .coll-grid::-webkit-scrollbar { width:6px; }
+  .coll-grid::-webkit-scrollbar-thumb { background:rgba(100,200,230,0.2); border-radius:3px; }
+
+  .coll-card {
+    width:100%; aspect-ratio:110/140; border-radius:8px;
+    border:2px solid rgba(100,200,230,0.15);
+    position:relative; cursor:pointer; transition:all 0.2s;
+    overflow:hidden; background:rgba(40,20,80,0.6);
+  }
+  .coll-card:hover {
+    transform:translateY(-3px);
+    border-color:rgba(255,150,200,0.5);
+    box-shadow:0 4px 16px rgba(255,150,200,0.15), 0 0 8px rgba(80,50,140,0.3);
+  }
+  .coll-card.in-deck {
+    border-color:rgba(255,215,0,0.5);
+    box-shadow:0 0 12px rgba(255,215,0,0.2);
+  }
+  .coll-card.in-deck::after {
+    content:'✓'; position:absolute; top:4px; right:4px;
+    width:18px; height:18px; border-radius:50%;
+    background:rgba(255,215,0,0.85); color:#1a1a2e;
+    font-size:0.6rem; display:flex; align-items:center; justify-content:center;
+    font-weight:700; z-index:5;
+  }
+  .coll-card img {
+    width:100%; height:100%; object-fit:cover; object-position:center top;
+    opacity:0.85; border-radius:6px;
+  }
+  .coll-card .coll-ranks {
+    position:absolute; top:3px; left:3px;
+    width:30px; height:30px; z-index:3;
+  }
+  .coll-card .coll-rank {
+    position:absolute; font-family:'Orbitron',sans-serif; font-size:0.5rem; font-weight:900;
+    color:#fff; text-shadow:0 1px 3px rgba(0,0,0,0.9), 0 0 6px rgba(0,0,0,0.7);
+    line-height:1; text-align:center; width:12px;
+  }
+  .coll-card .coll-rank.r-top { top:0; left:50%; transform:translateX(-50%); }
+  .coll-card .coll-rank.r-right { right:0; top:50%; transform:translateY(-50%); }
+  .coll-card .coll-rank.r-bottom { bottom:0; left:50%; transform:translateX(-50%); }
+  .coll-card .coll-rank.r-left { left:0; top:50%; transform:translateY(-50%); }
+  .coll-card .coll-card-name {
+    position:absolute; bottom:0; left:0; right:0;
+    background:linear-gradient(transparent, rgba(0,0,0,0.85));
+    padding:12px 4px 4px; font-size:0.55rem; color:rgba(200,180,230,0.9);
+    text-align:center; font-family:'Rajdhani',sans-serif; font-weight:600;
+  }
+  .coll-card .coll-rarity-bar {
+    position:absolute; bottom:0; left:0; right:0; height:3px;
+  }
+
+  /* Silhouette for unowned cards */
+  .coll-card.unowned { opacity:0.4; cursor:default; }
+  .coll-card.unowned:hover { transform:none; border-color:rgba(100,200,230,0.15); box-shadow:none; }
+  .coll-card.unowned img {
+    filter:brightness(0); opacity:0.6;
+  }
+  .coll-card.unowned .coll-ranks { display:none; }
+  .coll-card.unowned .coll-card-name { color:rgba(200,180,230,0.3); }
+
+  /* Rarity colors for border bottom bar */
+  .rarity-common { background:rgba(170,170,170,0.8); }
+  .rarity-uncommon { background:rgba(76,175,80,0.8); }
+  .rarity-rare { background:rgba(33,150,243,0.8); }
+  .rarity-epic { background:rgba(156,39,176,0.8); }
+  .rarity-legendary { background:rgba(255,152,0,0.8); }
+  .rarity-unique { background:rgba(255,215,0,0.8); }
+
+  /* ── TUTORIAL DIALOGUE ── */
+  .tut-dialogue {
+    position:fixed; bottom:0; left:0; right:0; z-index:80;
+    background:linear-gradient(0deg, rgba(10,5,25,0.98), rgba(20,10,40,0.95));
+    border-top:2px solid rgba(100,200,230,0.3);
+    padding:16px 20px 20px;
+    display:none;
+    box-shadow:0 -4px 30px rgba(0,0,0,0.5);
+  }
+  .tut-dialogue.visible { display:flex; gap:16px; align-items:flex-start; }
+  .tut-portrait {
+    flex:0 0 80px; height:80px; border-radius:10px;
+    background:linear-gradient(135deg, rgba(40,20,60,0.9), rgba(20,10,40,0.9));
+    border:2px solid rgba(100,200,230,0.25);
+    display:flex; align-items:center; justify-content:center;
+    font-size:2.8rem; position:relative;
+    box-shadow:0 0 16px rgba(100,200,230,0.1);
+  }
+  .tut-portrait-name {
+    position:absolute; bottom:-12px; left:50%; transform:translateX(-50%);
+    font-family:'Orbitron',sans-serif; font-size:0.5rem; font-weight:700;
+    color:rgba(100,200,230,0.7); white-space:nowrap; letter-spacing:1px;
+    background:rgba(10,5,25,0.9); padding:1px 6px; border-radius:4px;
+  }
+  .tut-dialogue-body { flex:1; min-height:60px; display:flex; flex-direction:column; justify-content:center; }
+  .tut-dialogue-text {
+    font-family:'Rajdhani',sans-serif; font-size:1.05rem; font-weight:500;
+    color:#ddd; line-height:1.6; min-height:2.4em;
+  }
+  .tut-dialogue-hint {
+    font-family:'Orbitron',sans-serif; font-size:0.55rem; color:rgba(100,200,230,0.4);
+    margin-top:8px; letter-spacing:1px;
+  }
+  .tut-dialogue-hint.blink { animation: hintBlink 1.5s ease-in-out infinite; }
+  @keyframes hintBlink {
+    0%,100% { opacity:0.4; }
+    50% { opacity:0.8; }
+  }
+
+  /* Tutorial cell highlight for expected moves */
+  .board-cell.tut-target {
+    border-color:rgba(255,215,0,0.6) !important;
+    background:rgba(255,215,0,0.1) !important;
+    box-shadow:inset 0 0 15px rgba(255,215,0,0.15);
+    animation:tutTargetPulse 1.5s ease-in-out infinite;
+  }
+  @keyframes tutTargetPulse {
+    0%,100% { box-shadow:inset 0 0 15px rgba(255,215,0,0.1); }
+    50% { box-shadow:inset 0 0 20px rgba(255,215,0,0.25); }
+  }
+  .card.tut-highlight {
+    box-shadow:0 0 16px rgba(255,215,0,0.5) !important;
+    border-color:var(--gold) !important;
+  }
+
+  /* Lesson complete overlay */
+  .tut-lesson-complete {
+    position:fixed; inset:0; z-index:90;
+    background:rgba(5,5,20,0.9);
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    animation:fadeIn 0.5s;
+  }
+  .tut-lesson-complete h2 {
+    font-family:'Orbitron',sans-serif; font-size:1.6rem;
+    color:#FFD700; letter-spacing:3px; margin-bottom:1rem;
+  }
+  .tut-lesson-complete p {
+    font-family:'Rajdhani',sans-serif; font-size:1.1rem;
+    color:#ccc; margin-bottom:2rem; text-align:center; max-width:400px;
+  }
+
   /* ── UWU EASTER EGG ── */
   @keyframes uwuPop {
     0%   { opacity:0; transform:translate(-50%,-50%) scale(0.5); }
@@ -618,7 +917,9 @@
 <div id="title-screen">
   <h1>WAIFU BURST</h1>
   <p class="subtitle">A Card Battle Game</p>
-  <button class="menu-btn" onclick="startGame()">PLAY GAME</button>
+  <button class="menu-btn" onclick="playWithDeck()">PLAY GAME</button>
+  <button class="menu-btn" onclick="showCollection()">COLLECTION</button>
+  <button class="menu-btn" onclick="startTutorial()">TUTORIAL</button>
   <button class="menu-btn" onclick="showHowToPlay()" style="border-color:rgba(255,255,255,0.15);background:rgba(255,255,255,0.03)">HOW TO PLAY</button>
   <div class="title-vol">
     <div class="vol-row">
@@ -635,6 +936,41 @@
 </div>
 
 <div id="setup-screen" style="display:none"></div>
+
+<!-- COLLECTION / DECK BUILDER -->
+<div id="collection-screen" style="display:none;">
+  <div class="coll-layout">
+    <div class="coll-header">
+      <button class="coll-back-btn" onclick="backToTitle()">◀ BACK</button>
+      <h2 class="coll-title">COLLECTION</h2>
+      <div class="coll-card-count" id="coll-card-count">32 / 32</div>
+    </div>
+
+    <!-- DECK TABS -->
+    <div class="deck-tabs" id="deck-tabs"></div>
+
+    <!-- ACTIVE DECK DISPLAY -->
+    <div class="deck-display" id="deck-display">
+      <div class="deck-slots" id="deck-slots"></div>
+    </div>
+
+    <!-- FILTER BAR -->
+    <div class="coll-filters">
+      <button class="coll-filter-btn active" data-filter="all" onclick="setCollFilter('all',this)">ALL</button>
+      <button class="coll-filter-btn" data-filter="common" onclick="setCollFilter('common',this)">COMMON</button>
+      <button class="coll-filter-btn" data-filter="uncommon" onclick="setCollFilter('uncommon',this)">UNCOMMON</button>
+      <button class="coll-filter-btn" data-filter="rare" onclick="setCollFilter('rare',this)">RARE</button>
+      <button class="coll-filter-btn" data-filter="epic" onclick="setCollFilter('epic',this)">EPIC</button>
+      <button class="coll-filter-btn" data-filter="legendary" onclick="setCollFilter('legendary',this)">LEGENDARY</button>
+      <button class="coll-filter-btn" data-filter="unique" onclick="setCollFilter('unique',this)">UNIQUE</button>
+      <span class="coll-filter-sep">|</span>
+      <button class="coll-filter-btn" id="filter-unowned" onclick="toggleUnownedFilter(this)">SHOW MISSING</button>
+    </div>
+
+    <!-- CARD GRID -->
+    <div class="coll-grid" id="coll-grid"></div>
+  </div>
+</div>
 
 <!-- GAME SCREEN -->
 <div id="game-screen">
@@ -669,6 +1005,26 @@
   <p class="result-sub" id="result-sub"></p>
   <button class="menu-btn" onclick="rematch()">PLAY AGAIN</button>
   <button class="menu-btn" style="margin-top:0.5rem;border-color:rgba(255,255,255,0.15);background:rgba(255,255,255,0.03)" onclick="backToTitle()">MAIN MENU</button>
+</div>
+
+<!-- TUTORIAL DIALOGUE BOX -->
+<div class="tut-dialogue" id="tut-dialogue">
+  <div class="tut-portrait" id="tut-portrait">
+    💀
+    <span class="tut-portrait-name">DEATH</span>
+  </div>
+  <div class="tut-dialogue-body">
+    <div class="tut-dialogue-text" id="tut-dialogue-text"></div>
+    <div class="tut-dialogue-hint blink" id="tut-dialogue-hint">CLICK TO CONTINUE</div>
+  </div>
+</div>
+
+<!-- LESSON COMPLETE OVERLAY -->
+<div class="tut-lesson-complete" id="tut-lesson-complete" style="display:none;">
+  <h2 id="tut-lesson-title">LESSON COMPLETE</h2>
+  <p id="tut-lesson-msg"></p>
+  <button class="menu-btn" id="tut-next-lesson-btn" onclick="nextTutLesson()">NEXT LESSON</button>
+  <button class="menu-btn" style="margin-top:0.5rem;border-color:rgba(255,255,255,0.15);background:rgba(255,255,255,0.03)" onclick="exitTutorial()">MAIN MENU</button>
 </div>
 
 <!-- HOW TO PLAY OVERLAY -->
@@ -888,9 +1244,15 @@ let state = {
 
 // ── SCREENS ──
 function showScreen(id) {
-  ['title-screen','setup-screen','game-screen'].forEach(s => document.getElementById(s).style.display='none');
+  ['title-screen','setup-screen','game-screen','collection-screen'].forEach(s => {
+    const el = document.getElementById(s);
+    if(el) el.style.display='none';
+  });
   document.getElementById('result-overlay').classList.remove('show');
-  document.getElementById(id).style.display = id==='title-screen'?'flex': (id==='game-screen'?'block':'block');
+  const target = document.getElementById(id);
+  if(id==='title-screen') target.style.display='flex';
+  else if(id==='collection-screen') target.style.display='flex';
+  else target.style.display='block';
 }
 function backToTitle(){ showScreen('title-screen'); }
 function showSetup(){
@@ -1206,6 +1568,282 @@ function buildDeckPicker(){
   document.getElementById('start-btn').disabled=true;
 }
 
+// ── COLLECTION / DECK BUILDER ──
+const MAX_DECKS = 5;
+const DECK_SIZE = 5;
+let collState = {
+  decks: [[], [], [], [], []], // 5 deck slots, each holds up to 5 card IDs
+  activeDeck: 0,
+  equippedDeck: 0, // the deck used when PLAY GAME is pressed
+  unlockedDecks: 2, // first 2 unlocked, rest locked
+  ownedCardIds: ALL_CARDS.map(c => c.id), // all owned for now
+  filter: 'all',
+  showUnowned: false,
+};
+
+// Persist decks to localStorage
+function saveDecks(){
+  try {
+    localStorage.setItem('wb_decks', JSON.stringify(collState.decks));
+    localStorage.setItem('wb_activeDeck', collState.activeDeck);
+    localStorage.setItem('wb_equippedDeck', collState.equippedDeck);
+  } catch(e){}
+}
+function loadDecks(){
+  try {
+    const d = localStorage.getItem('wb_decks');
+    if(d) collState.decks = JSON.parse(d);
+    const a = localStorage.getItem('wb_activeDeck');
+    if(a !== null) collState.activeDeck = parseInt(a);
+    const e = localStorage.getItem('wb_equippedDeck');
+    if(e !== null) collState.equippedDeck = parseInt(e);
+  } catch(e){}
+}
+loadDecks();
+
+function showCollection(){
+  showScreen('collection-screen');
+  renderDeckTabs();
+  renderDeckDisplay();
+  renderCollGrid();
+}
+
+function renderDeckTabs(){
+  const container = document.getElementById('deck-tabs');
+  container.innerHTML = '';
+  const labels = ['DECK 1','DECK 2','DECK 3','DECK 4','DECK 5'];
+  for(let i=0; i<MAX_DECKS; i++){
+    const tab = document.createElement('button');
+    const locked = i >= collState.unlockedDecks;
+    const equipped = i === collState.equippedDeck;
+    tab.className = 'deck-tab' + (i===collState.activeDeck?' active':'') + (locked?' locked':'') + (equipped?' equipped':'');
+    const equipIcon = equipped ? ' <span class="tab-equip">⚔</span>' : '';
+    tab.innerHTML = labels[i] + (locked ? ' <span class="tab-lock">🔒</span>' : equipIcon);
+    tab.onclick = ()=>{ collState.activeDeck = i; saveDecks(); renderDeckTabs(); renderDeckDisplay(); renderCollGrid(); };
+    container.appendChild(tab);
+  }
+}
+
+function renderDeckDisplay(){
+  const container = document.getElementById('deck-display');
+  const idx = collState.activeDeck;
+  const locked = idx >= collState.unlockedDecks;
+
+  if(locked){
+    container.innerHTML = `<div class="deck-locked-msg">
+      <span class="lock-icon">🔒</span>
+      DECK LOCKED
+      <div class="lock-req">Complete challenges on harem-lit.com to unlock additional deck slots</div>
+    </div>`;
+    return;
+  }
+
+  const deck = collState.decks[idx];
+  const slotsEl = document.createElement('div');
+  slotsEl.className = 'deck-slots';
+  slotsEl.id = 'deck-slots';
+
+  for(let s=0; s<DECK_SIZE; s++){
+    const slot = document.createElement('div');
+    slot.className = 'deck-slot';
+    if(s < deck.length){
+      const cardId = deck[s];
+      const card = ALL_CARDS.find(c=>c.id===cardId);
+      if(card){
+        slot.classList.add('filled');
+        const ranks = card.ranks;
+        const dispRank = v => v===10?'W':v;
+        slot.innerHTML = `
+          <div class="slot-card">
+            <img src="${card.image}" alt="${card.name}">
+            <div class="slot-ranks">
+              <span class="slot-rank r-top">${dispRank(ranks[0])}</span>
+              <span class="slot-rank r-right">${dispRank(ranks[1])}</span>
+              <span class="slot-rank r-bottom">${dispRank(ranks[2])}</span>
+              <span class="slot-rank r-left">${dispRank(ranks[3])}</span>
+            </div>
+            <div class="slot-name">${card.name}</div>
+            <div class="slot-remove" onclick="event.stopPropagation();removeFromDeck(${s})">✕</div>
+          </div>
+        `;
+        slot.style.borderColor = getRarityColor(card.rarity);
+      }
+    } else {
+      slot.innerHTML = '<span class="slot-empty">+</span>';
+      slot.onclick = ()=>{};
+    }
+    slotsEl.appendChild(slot);
+  }
+  container.innerHTML = '';
+  container.appendChild(slotsEl);
+
+  // Equip button
+  const equipped = idx === collState.equippedDeck;
+  const equipRow = document.createElement('div');
+  equipRow.style.cssText = 'display:flex;justify-content:center;margin-top:10px;';
+  if(equipped){
+    equipRow.innerHTML = '<span style="font-family:Orbitron,sans-serif;font-size:0.65rem;color:#FFD700;letter-spacing:1px;">⚔ EQUIPPED FOR BATTLE ⚔</span>';
+  } else {
+    const eBtn = document.createElement('button');
+    eBtn.className = 'coll-filter-btn';
+    eBtn.style.cssText = 'padding:8px 20px;font-size:0.65rem;' + (deck.length===DECK_SIZE ? 'color:#FFD700;border-color:rgba(255,215,0,0.4);' : 'opacity:0.3;cursor:not-allowed;');
+    eBtn.textContent = '⚔ EQUIP DECK';
+    if(deck.length === DECK_SIZE){
+      eBtn.onclick = ()=>{ collState.equippedDeck = idx; saveDecks(); renderDeckTabs(); renderDeckDisplay(); };
+    }
+    equipRow.appendChild(eBtn);
+  }
+  container.appendChild(equipRow);
+}
+
+function getRarityColor(rarity){
+  const colors = {common:'#aaa',uncommon:'#4CAF50',rare:'#2196F3',epic:'#9C27B0',legendary:'#FF9800',unique:'#FFD700'};
+  return colors[rarity] || '#aaa';
+}
+
+function removeFromDeck(slotIdx){
+  const deck = collState.decks[collState.activeDeck];
+  deck.splice(slotIdx, 1);
+  saveDecks();
+  renderDeckDisplay();
+  renderCollGrid();
+}
+
+function addToDeck(cardId){
+  const idx = collState.activeDeck;
+  if(idx >= collState.unlockedDecks) return;
+  const deck = collState.decks[idx];
+  if(deck.length >= DECK_SIZE) return;
+  if(deck.includes(cardId)) return; // no duplicates
+  deck.push(cardId);
+  saveDecks();
+  renderDeckDisplay();
+  renderCollGrid();
+}
+
+function setCollFilter(filter, btn){
+  collState.filter = filter;
+  document.querySelectorAll('.coll-filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  // Keep unowned toggle state separate
+  if(filter !== 'unowned') document.getElementById('filter-unowned').classList.toggle('active', collState.showUnowned);
+  renderCollGrid();
+}
+
+function toggleUnownedFilter(btn){
+  collState.showUnowned = !collState.showUnowned;
+  btn.classList.toggle('active', collState.showUnowned);
+  renderCollGrid();
+}
+
+function renderCollGrid(){
+  const grid = document.getElementById('coll-grid');
+  grid.innerHTML = '';
+
+  const activeDeck = collState.decks[collState.activeDeck] || [];
+  const ownedSet = new Set(collState.ownedCardIds);
+
+  // Filter cards
+  let cards = [...ALL_CARDS];
+  if(collState.filter !== 'all'){
+    cards = cards.filter(c => c.rarity === collState.filter);
+  }
+
+  // Split into owned and unowned
+  let owned = cards.filter(c => ownedSet.has(c.id));
+  let unowned = cards.filter(c => !ownedSet.has(c.id));
+
+  // Update card count
+  const countEl = document.getElementById('coll-card-count');
+  if(countEl) countEl.textContent = `${collState.ownedCardIds.length} / ${ALL_CARDS.length}`;
+
+  // Render owned cards
+  owned.forEach(card => {
+    const el = createCollCard(card, false, activeDeck.includes(card.id));
+    grid.appendChild(el);
+  });
+
+  // Render unowned cards if toggle is on
+  if(collState.showUnowned){
+    unowned.forEach(card => {
+      const el = createCollCard(card, true, false);
+      grid.appendChild(el);
+    });
+  }
+}
+
+function createCollCard(card, unowned, inDeck){
+  const el = document.createElement('div');
+  el.className = 'coll-card' + (unowned?' unowned':'') + (inDeck?' in-deck':'');
+
+  const ranks = card.ranks;
+  const dispRank = v => v===10?'W':v;
+
+  el.innerHTML = `
+    <img src="${card.image}" alt="${card.name}">
+    <div class="coll-ranks">
+      <span class="coll-rank r-top">${dispRank(ranks[0])}</span>
+      <span class="coll-rank r-right">${dispRank(ranks[1])}</span>
+      <span class="coll-rank r-bottom">${dispRank(ranks[2])}</span>
+      <span class="coll-rank r-left">${dispRank(ranks[3])}</span>
+    </div>
+    <div class="coll-card-name">${card.name}</div>
+    <div class="coll-rarity-bar rarity-${card.rarity}"></div>
+  `;
+
+  if(!unowned){
+    el.onclick = ()=>{
+      const deck = collState.decks[collState.activeDeck];
+      if(inDeck){
+        // Remove from deck
+        const dIdx = deck.indexOf(card.id);
+        if(dIdx > -1) deck.splice(dIdx, 1);
+      } else {
+        // Add to deck
+        if(deck.length < DECK_SIZE && !deck.includes(card.id)){
+          deck.push(card.id);
+        }
+      }
+      saveDecks();
+      renderDeckDisplay();
+      renderCollGrid();
+    };
+  }
+
+  return el;
+}
+
+// Play using the active deck (or random if empty)
+function playWithDeck(){
+  const deck = collState.decks[collState.equippedDeck];
+  if(deck.length === DECK_SIZE){
+    // Use the selected deck
+    state.board = Array(9).fill(null);
+    state.selectedCard = null;
+    state.turn = 'blue';
+    state.gameActive = true;
+    state.animating = false;
+    state.boardElements = Array(9).fill(null);
+
+    state.playerHand = deck.map(id => {
+      const card = ALL_CARDS.find(c=>c.id===id);
+      return {...card, owner:'blue'};
+    });
+    // AI still gets random hand
+    const available = ALL_CARDS.filter(c => !deck.includes(c.id));
+    const aiPool = shuffle([...available]);
+    state.aiHand = aiPool.slice(0,5).map(c=>({...c, owner:'red'}));
+
+    showScreen('game-screen');
+    renderGame();
+    startMusic();
+    dealInAnimation(()=>{ updateTurnIndicator(); });
+  } else {
+    // Not enough cards — fall back to random
+    startGame();
+  }
+}
+
 // ── START GAME (DEMO MODE — random decks, normal rules) ──
 function startGame(){
   state.board = Array(9).fill(null);
@@ -1513,6 +2151,12 @@ function executePlace(card, cellIdx, owner){
     animateFlips(flipped, ()=>{
       state.animating = false;
       updateScore();
+
+      // In tutorial mode, don't switch turns or trigger AI — the lesson script controls flow
+      if(tutMode) {
+        renderGame();
+        return;
+      }
 
       // Check game end
       if(state.board.every(c=>c!==null)){
@@ -2292,6 +2936,477 @@ function dealInAnimation(callback){
       }
     }, delay);
   });
+}
+
+// ── TUTORIAL ENGINE ──
+let tutMode = false;
+let tutLesson = 0;
+let tutStep = 0;
+let tutTyping = false;
+let tutTypeTimer = null;
+let tutFullText = '';
+let tutWaitingForClick = false;
+let tutExpectedCard = null;  // index in player hand
+let tutExpectedCell = null;  // board cell index
+let tutWrongMoveCount = 0;
+
+// Dialogue typewriter
+function showDialogue(text, onDone){
+  const box = document.getElementById('tut-dialogue');
+  const textEl = document.getElementById('tut-dialogue-text');
+  const hint = document.getElementById('tut-dialogue-hint');
+  box.classList.add('visible');
+  hint.textContent = '';
+  tutFullText = text;
+  tutTyping = true;
+  tutWaitingForClick = false;
+  textEl.textContent = '';
+  let i = 0;
+  clearInterval(tutTypeTimer);
+  tutTypeTimer = setInterval(()=>{
+    if(i < text.length){
+      textEl.textContent += text[i];
+      i++;
+    } else {
+      clearInterval(tutTypeTimer);
+      tutTyping = false;
+      tutWaitingForClick = true;
+      hint.textContent = 'CLICK TO CONTINUE';
+      hint.classList.add('blink');
+      box._onDone = onDone;
+    }
+  }, 28);
+  // Click to skip typing or advance
+  box.onclick = ()=>{
+    if(tutTyping){
+      clearInterval(tutTypeTimer);
+      textEl.textContent = tutFullText;
+      tutTyping = false;
+      tutWaitingForClick = true;
+      hint.textContent = 'CLICK TO CONTINUE';
+      hint.classList.add('blink');
+      box._onDone = onDone;
+    } else if(tutWaitingForClick){
+      tutWaitingForClick = false;
+      hint.textContent = '';
+      box.onclick = null;
+      if(box._onDone) box._onDone();
+    }
+  };
+}
+
+function showDialogueWaitForMove(text){
+  const box = document.getElementById('tut-dialogue');
+  const textEl = document.getElementById('tut-dialogue-text');
+  const hint = document.getElementById('tut-dialogue-hint');
+  box.classList.add('visible');
+  hint.textContent = '';
+  tutFullText = text;
+  tutTyping = true;
+  tutWaitingForClick = false;
+  textEl.textContent = '';
+  let i = 0;
+  clearInterval(tutTypeTimer);
+  tutTypeTimer = setInterval(()=>{
+    if(i < text.length){
+      textEl.textContent += text[i];
+      i++;
+    } else {
+      clearInterval(tutTypeTimer);
+      tutTyping = false;
+      hint.textContent = 'MAKE YOUR MOVE';
+      hint.classList.add('blink');
+    }
+  }, 28);
+  box.onclick = ()=>{
+    if(tutTyping){
+      clearInterval(tutTypeTimer);
+      textEl.textContent = tutFullText;
+      tutTyping = false;
+      hint.textContent = 'MAKE YOUR MOVE';
+      hint.classList.add('blink');
+    }
+  };
+}
+
+function hideDialogue(){
+  const box = document.getElementById('tut-dialogue');
+  box.classList.remove('visible');
+  box.onclick = null;
+  clearInterval(tutTypeTimer);
+}
+
+// Wrong move responses — the Reaper is patient but... noticed.
+const WRONG_MOVE_LINES = [
+  "Ah... that wasn't quite what I had in mind, love. Shall we try the spot I suggested?",
+  "Right then. Interesting choice, but perhaps not the most instructive one. Do have another go, won't you?",
+  "I admire the independent spirit, truly I do. But I did rather specifically suggest a different move.",
+  "You know, in my line of work, people who don't follow instructions tend to arrive at my door rather sooner than expected.",
+  "I've been doing this since before your sun had its first proper flare, dear. Trust the process.",
+];
+
+// ── LESSON DEFINITIONS ──
+// Each step: {type:'dialogue'|'player_move'|'reaper_move'|'end', ...}
+
+function makeTutCard(name, t, r, b, l, img){
+  return {id:9000+Math.random()*1000|0, name, emoji:'🃏', rarity:'common', element:null, image:img||'', ranks:[t,r,b,l]};
+}
+
+const TUT_LESSONS = [
+  // ── LESSON 1: BASICS ──
+  {
+    title: 'The Basics',
+    desc: 'Card placement and basic capture',
+    rules: {},
+    playerHand: [
+      makeTutCard('Trainee A', 5, 3, 2, 7, 'cards_web/Abella_Alt9.jpg'),
+      makeTutCard('Trainee B', 3, 6, 4, 2, 'cards_web/Naia_Alt1.jpg'),
+      makeTutCard('Trainee C', 7, 2, 5, 3, 'cards_web/Rowan_Alt2.jpg'),
+      makeTutCard('Trainee D', 4, 5, 3, 6, 'cards_web/Vivienne_Alt1.jpg'),
+      makeTutCard('Trainee E', 2, 4, 7, 5, 'cards_web/Abella_Alt3.jpg'),
+    ],
+    reaperHand: [
+      makeTutCard('Reaper I', 4, 3, 5, 2, ''),
+      makeTutCard('Reaper II', 3, 5, 2, 4, ''),
+      makeTutCard('Reaper III', 6, 2, 3, 5, ''),
+      makeTutCard('Reaper IV', 2, 4, 6, 3, ''),
+      makeTutCard('Reaper V', 5, 6, 4, 1, ''),
+    ],
+    steps: [
+      {type:'dialogue', text:"Ah, a new arrival. Lovely. Do sit down — I've just put the kettle on. I'm Death, by the way. Pleasure."},
+      {type:'dialogue', text:"Now then, I'm going to teach you how to play this delightful little card game. It's rather like chess, except with prettier pictures and considerably less sulking."},
+      {type:'dialogue', text:"You see those cards in your hand? Each one has four numbers — top, right, bottom, and left. Those are your ranks. Higher is better. Simple enough, yeah?"},
+      {type:'dialogue', text:"We take turns placing cards on this lovely 3×3 board. When your card touches an opponent's card, the touching sides are compared. If your number is higher, you capture their card. It flips to your colour."},
+      {type:'dialogue', text:"Right. Let's start with something easy. Place your first card — the one with the 7 on the left — right in the centre of the board. Go on, click it, then click the centre cell."},
+      {type:'player_move', card:0, cell:4, hint:"Select Trainee A and place it in the centre cell."},
+      {type:'dialogue', text:"Brilliant. You've placed your first card. Nothing to capture yet — the board was empty. But that changes now. My turn."},
+      {type:'reaper_move', card:0, cell:5, text:"I'll pop one of mine right next to yours, on the right. Notice my card's left side is a 2, and your right side is a 3. Your 3 beats my 2, so... nothing happens to your card. I wasn't trying to capture — just setting up the lesson."},
+      {type:'dialogue', text:"Now here's where it gets interesting. Place your second card — the one with the 6 on the right — to the LEFT of my card. That means you'll be attacking my card's left side with your right side."},
+      {type:'player_move', card:0, cell:3, hint:"Select Trainee B and place it to the left of Death's card (middle-left cell)."},
+      {type:'dialogue', text:"There we are! But wait — your card's right rank is 6, and you're not adjacent to my card on that side from this position. What matters is which sides are actually touching. That's the key to this whole game, love."},
+      {type:'dialogue', text:"My turn again. Pay attention to what happens next."},
+      {type:'reaper_move', card:0, cell:1, text:"I'll place this one up top. My card's bottom is a 2, and your centre card's top is a 5. Your 5 beats my 2 — so you're safe. Can't capture what's already stronger than you, can I?"},
+      {type:'dialogue', text:"See how that works? When I place a card next to yours, the touching sides are compared. My bottom versus your top. If I'd had the higher number, I would have flipped your card to my colour."},
+      {type:'dialogue', text:"Now, your go. Place the card with the 7 on top up in the top-left corner. Let's see you capture something."},
+      {type:'player_move', card:0, cell:0, hint:"Select Trainee C and place it in the top-left corner."},
+      {type:'dialogue', text:"Lovely! Your card's right side is 2 and my card's left is... actually, let me see. The point is — you're learning. And that's rather the whole idea, isn't it?"},
+      {type:'dialogue', text:"We'll carry on with the rest of the match. You've grasped the fundamentals — place cards, compare touching sides, higher number wins. That's all there is to basic capture."},
+      {type:'dialogue', text:"In the next lesson, I'll show you something rather more clever. There are special rules that can flip multiple cards at once. Frightfully exciting stuff."},
+      {type:'dialogue', text:"But for now, well done. I think you've earned a biscuit. Not that I have any. Death doesn't keep biscuits. Terrible for the figure. Off you pop."},
+      {type:'end'}
+    ]
+  },
+  // ── LESSON 2: SAME ──
+  {
+    title: 'The Same Rule',
+    desc: 'Capturing with matching ranks',
+    rules: {same:true},
+    playerHand: [
+      makeTutCard('Cadet A', 5, 5, 3, 4, 'cards_web/Abella_Original.jpg'),
+      makeTutCard('Cadet B', 3, 4, 6, 5, 'cards_web/Naia_Original.jpg'),
+      makeTutCard('Cadet C', 4, 7, 2, 3, 'cards_web/Rowan_Original.jpg'),
+      makeTutCard('Cadet D', 6, 3, 5, 2, 'cards_web/Vivienne_Original.jpg'),
+      makeTutCard('Cadet E', 2, 5, 4, 7, 'cards_web/Cecilia.jpg'),
+    ],
+    reaperHand: [
+      makeTutCard('Reaper A', 3, 4, 5, 6, ''),
+      makeTutCard('Reaper B', 5, 2, 4, 3, ''),
+      makeTutCard('Reaper C', 4, 6, 3, 5, ''),
+      makeTutCard('Reaper D', 2, 3, 6, 4, ''),
+      makeTutCard('Reaper E', 6, 5, 2, 1, ''),
+    ],
+    steps: [
+      {type:'dialogue', text:"Welcome back, love. Tea's still warm if you'd like some. No? Suit yourself. More for me, then."},
+      {type:'dialogue', text:"Today we're learning about the Same rule. It's a rather elegant little trick — and it'll change how you think about card placement entirely."},
+      {type:'dialogue', text:"Here's how it works: when you place a card and two or more of its sides have the SAME rank as the touching sides of adjacent cards — regardless of who owns them — those cards are captured."},
+      {type:'dialogue', text:"It doesn't matter if the numbers are high or low. What matters is that they MATCH on two or more sides. Equal ranks. Same. Hence the rather unimaginative name."},
+      {type:'dialogue', text:"Let me set up the board, and then I'll walk you through it. Watch carefully."},
+      {type:'reaper_move', card:0, cell:1, text:"I'll put this one in the top centre. Note its bottom rank — that's a 5."},
+      {type:'reaper_move', card:0, cell:3, text:"And another one here on the left. Its right rank is a 2. Remember these numbers."},
+      {type:'dialogue', text:"Now then. You see the centre cell? If you place a card there whose TOP matches my top card's BOTTOM, and whose LEFT matches my left card's RIGHT, you'll trigger Same."},
+      {type:'dialogue', text:"Your first card has a 5 on top and a 4 on the left. My top card's bottom is 5 — that matches! But my left card's right is 2, and your left is 4. That doesn't match. So no Same there."},
+      {type:'dialogue', text:"But your second card — the one with 3 on top and 5 on the left. Hmm, that doesn't match either. Tricky, isn't it?"},
+      {type:'dialogue', text:"Actually, let's just try it. Place your FIRST card — the one with 5 on top — in the centre. It'll match the top card, and we'll see what happens with the other side."},
+      {type:'player_move', card:0, cell:4, hint:"Select Cadet A and place it in the centre cell."},
+      {type:'dialogue', text:"There! Your top rank is 5, my card above has a bottom rank of 5. That's one matching pair. For Same to trigger, you need at least two matching pairs touching. We only got one this time."},
+      {type:'dialogue', text:"But see how powerful this could be? If both sides had matched, you would have captured BOTH my cards in a single placement. No need for higher numbers — just matching ones."},
+      {type:'dialogue', text:"Same is what separates the clever players from the merely adequate ones. It's not about brute force — it's about positioning. Rather like life, really. Or death. I would know."},
+      {type:'dialogue', text:"Splendid work, love. Next time, I'll teach you the Plus rule — it's Same's slightly more mathematical cousin. Do bring a calculator. I'm joking. Mostly."},
+      {type:'end'}
+    ]
+  },
+  // ── LESSON 3: PLUS ──
+  {
+    title: 'The Plus Rule',
+    desc: 'Capturing with equal sums',
+    rules: {plus:true},
+    playerHand: [
+      makeTutCard('Pupil A', 4, 2, 5, 7, 'cards_web/Abella_Alt1.jpg'),
+      makeTutCard('Pupil B', 3, 6, 2, 4, 'cards_web/Rowan_Alt1.jpg'),
+      makeTutCard('Pupil C', 5, 3, 7, 2, 'cards_web/Kitsune.jpg'),
+      makeTutCard('Pupil D', 6, 4, 3, 5, 'cards_web/Naga.jpg'),
+      makeTutCard('Pupil E', 2, 7, 4, 3, 'cards_web/Tink.jpg'),
+    ],
+    reaperHand: [
+      makeTutCard('Reaper X', 3, 4, 5, 6, ''),
+      makeTutCard('Reaper Y', 5, 2, 3, 4, ''),
+      makeTutCard('Reaper Z', 4, 5, 6, 3, ''),
+      makeTutCard('Reaper W', 6, 3, 2, 5, ''),
+      makeTutCard('Reaper V', 2, 6, 4, 1, ''),
+    ],
+    steps: [
+      {type:'dialogue', text:"Ah, you're back. I was beginning to think you'd shuffled off this mortal coil. That's my job, incidentally."},
+      {type:'dialogue', text:"Right, Plus. It's like Same, but with addition. When you place a card, look at each pair of touching ranks — your rank plus the adjacent card's rank. If two or more of those SUMS are equal, you capture those cards."},
+      {type:'dialogue', text:"For example, if your top is 4 and the enemy's bottom is 3, that sum is 7. If your left is 2 and the enemy's right is 5, that's ALSO 7. Same sum on two sides — Plus triggers, both cards captured."},
+      {type:'dialogue', text:"It's a bit more maths than Same, but the payoff is enormous. You can capture cards that seem completely safe because their individual ranks are higher."},
+      {type:'dialogue', text:"Let me arrange the board, then you'll see it in action."},
+      {type:'reaper_move', card:0, cell:1, text:"One up top. Bottom rank is 5. Keep that number in your head."},
+      {type:'reaper_move', card:0, cell:5, text:"And one to the right of centre. Left rank is 4. Now think about what adds up."},
+      {type:'dialogue', text:"The centre cell is open. You need a card where: your TOP + my BOTTOM = your RIGHT + my LEFT. In other words, your top + 5 should equal your right + 4."},
+      {type:'dialogue', text:"Have a look at your first card — 4 on top, 2 on the right. That's 4+5=9 on top, and 2+4=6 on the right. Not equal. No Plus."},
+      {type:'dialogue', text:"Your third card — 5 on top, 3 on the right. That's 5+5=10 up top, 3+4=7 on the right. Still not equal. Blast."},
+      {type:'dialogue', text:"Sometimes Plus doesn't line up perfectly in a lesson, and that's quite alright. The important thing is you understand the CONCEPT: matching sums, not matching ranks."},
+      {type:'dialogue', text:"Go ahead and place your first card in the centre. Even without Plus triggering, you'll see the sums calculated."},
+      {type:'player_move', card:0, cell:4, hint:"Select Pupil A and place it in the centre cell."},
+      {type:'dialogue', text:"Right. No Plus this time — the sums didn't match. But you can see how it WOULD work. It's all about finding that sweet spot where the arithmetic lines up on two or more sides."},
+      {type:'dialogue', text:"Plus rewards careful planning. Before you place a card, look at the adjacent numbers and do the addition. When those sums align — that's when you strike."},
+      {type:'dialogue', text:"Next lesson: Same Wall. The edges of the board have a few tricks up their sleeve. Rather like me. Cheerio for now, love."},
+      {type:'end'}
+    ]
+  },
+  // ── LESSON 4: SAME WALL ──
+  {
+    title: 'Same Wall',
+    desc: 'Board edges count as rank W',
+    rules: {same:true, sameWall:true},
+    playerHand: [
+      makeTutCard('Scholar A', 10, 5, 3, 10, 'cards_web/Abella_Alt6.jpg'),
+      makeTutCard('Scholar B', 3, 10, 6, 4, 'cards_web/Vivienne_Alt5.jpg'),
+      makeTutCard('Scholar C', 5, 3, 10, 7, 'cards_web/Naia_Alt3.jpg'),
+      makeTutCard('Scholar D', 7, 4, 2, 5, 'cards_web/Rowan_Alt6.jpg'),
+      makeTutCard('Scholar E', 4, 6, 5, 3, 'cards_web/Abella_Alt5.jpg'),
+    ],
+    reaperHand: [
+      makeTutCard('Reaper α', 10, 3, 4, 5, ''),
+      makeTutCard('Reaper β', 4, 10, 5, 6, ''),
+      makeTutCard('Reaper γ', 5, 4, 10, 3, ''),
+      makeTutCard('Reaper δ', 3, 5, 6, 10, ''),
+      makeTutCard('Reaper ε', 6, 2, 3, 4, ''),
+    ],
+    steps: [
+      {type:'dialogue', text:"Pour yourself a cuppa, love. This one's a treat. We're talking about Same Wall — and it changes everything about edge placement."},
+      {type:'dialogue', text:"You know how the board has edges, yeah? Well, those edges count as rank W — that's 10, the highest rank. Think of the wall as an invisible card with W on every side."},
+      {type:'dialogue', text:"So if you place a card in a corner or along an edge, and the side touching the wall is W, that counts as a MATCH for the Same rule. The wall becomes your silent partner."},
+      {type:'dialogue', text:"This means a card with W on top, placed in the top row, already has one matching pair with the wall. You only need ONE more match with an adjacent card to trigger Same!"},
+      {type:'dialogue', text:"Your first card has W on top AND W on the left. If you place it in the top-left corner, BOTH wall sides match. That's two matching pairs right there — Same triggers automatically on any adjacent enemy cards!"},
+      {type:'reaper_move', card:0, cell:1, text:"I'll put one next to the corner spot. My card's left rank is 3. Doesn't match your right rank of 5, so no basic capture. But watch what Same Wall does..."},
+      {type:'dialogue', text:"Now place your first card — the one with W on top and W on the left — in the top-left corner."},
+      {type:'player_move', card:0, cell:0, hint:"Select Scholar A and place it in the top-left corner (cell 0)."},
+      {type:'dialogue', text:"Did you see that? Your top touches the wall — W matches W. Your left touches the wall — W matches W again. That's TWO matching pairs! Same triggers, and my adjacent card gets captured!"},
+      {type:'dialogue', text:"Same Wall is devastatingly effective with high-ranked cards on the edges. It also works with Plus — the wall's W value of 10 gets added into the sum calculations."},
+      {type:'dialogue', text:"The lesson here: edges aren't weaknesses — they're opportunities. A card with W on a wall-facing side is already halfway to a Same capture."},
+      {type:'dialogue', text:"Next up: Combo. That's when captures chain together like dominoes. Rather spectacular, if I do say so. Which I do. Because I'm Death, and I say what I like."},
+      {type:'end'}
+    ]
+  },
+  // ── LESSON 5: COMBO ──
+  {
+    title: 'Combo',
+    desc: 'Chain captures after Same or Plus',
+    rules: {same:true, combo:true},
+    playerHand: [
+      makeTutCard('Adept A', 5, 5, 3, 5, 'cards_web/Abella_Alt2.jpg'),
+      makeTutCard('Adept B', 3, 8, 4, 2, 'cards_web/Rowan_Alt5.jpg'),
+      makeTutCard('Adept C', 7, 3, 6, 4, 'cards_web/Vivienne_Alt3.jpg'),
+      makeTutCard('Adept D', 4, 6, 2, 7, 'cards_web/Abella_Alt4.jpg'),
+      makeTutCard('Adept E', 6, 4, 5, 3, 'cards_web/Rowan_Alt4.jpg'),
+    ],
+    reaperHand: [
+      makeTutCard('Reaper Ω', 5, 3, 4, 5, ''),
+      makeTutCard('Reaper Ψ', 2, 5, 3, 4, ''),
+      makeTutCard('Reaper Φ', 4, 2, 5, 6, ''),
+      makeTutCard('Reaper Χ', 3, 4, 6, 2, ''),
+      makeTutCard('Reaper Σ', 6, 1, 2, 3, ''),
+    ],
+    steps: [
+      {type:'dialogue', text:"Last lesson, love. And this one's my personal favourite. Combo. It's where everything you've learned comes together in the most satisfying way imaginable."},
+      {type:'dialogue', text:"Here's how Combo works: when Same or Plus captures a card, that newly captured card then checks its OTHER sides using basic rank comparison. If it beats an adjacent card, that card gets captured too!"},
+      {type:'dialogue', text:"It's a chain reaction. Same or Plus flips a card, that card checks its neighbours, flips more cards, and those cards check THEIR neighbours. Dominoes, love. Beautiful, devastating dominoes."},
+      {type:'dialogue', text:"Combo only starts from Same or Plus — basic captures don't chain. But once that first special capture triggers, the chain uses normal rank comparison for everything after."},
+      {type:'dialogue', text:"Let me set up the board. This'll be worth watching, I promise."},
+      {type:'reaper_move', card:0, cell:3, text:"One on the left. Note the right rank: 5."},
+      {type:'reaper_move', card:0, cell:5, text:"And one on the right. Left rank is 4. Now there are two enemy cards flanking the centre."},
+      {type:'reaper_move', card:0, cell:7, text:"One more below centre. Top rank is 5. Now the stage is properly set."},
+      {type:'dialogue', text:"Look at the centre cell. Three of my cards surround it. If you can trigger Same or Plus there, the captured cards will then check their other sides and potentially chain-capture MORE cards."},
+      {type:'dialogue', text:"Your first card has 5 on top, 5 on the right, and 5 on the left. Place it in the centre. The left and right both match my cards' touching ranks of 5 — that's Same!"},
+      {type:'player_move', card:0, cell:4, hint:"Select Adept A and place it in the centre cell."},
+      {type:'dialogue', text:"SAME triggered! My left and right cards are captured. Now watch — those captured cards check their remaining sides against any adjacent enemy cards. If they win those comparisons, MORE cards flip!"},
+      {type:'dialogue', text:"That's Combo. One clever placement, and suddenly half the board is yours. It's the most powerful play in the game, and it all starts with Same or Plus."},
+      {type:'dialogue', text:"Well then. You've learned everything I can teach you. Basic capture, Same, Plus, Same Wall, and Combo. You're as ready as you'll ever be."},
+      {type:'dialogue', text:"Do try not to lose too badly out there, won't you? It would reflect rather poorly on my teaching. And I have a reputation to maintain."},
+      {type:'dialogue', text:"Oh, and one more thing — if you ever fancy a rematch, you know where to find me. I'm always here. Comes with the territory, being Death and all. Toodle-oo, love."},
+      {type:'end'}
+    ]
+  }
+];
+
+function startTutorial(){
+  tutLesson = 0;
+  launchTutLesson(0);
+}
+
+function launchTutLesson(lessonIdx){
+  tutLesson = lessonIdx;
+  tutStep = 0;
+  tutMode = true;
+  tutWrongMoveCount = 0;
+
+  const lesson = TUT_LESSONS[lessonIdx];
+
+  // Set up game state with lesson's pre-built hands
+  state.board = Array(9).fill(null);
+  state.selectedCard = null;
+  state.turn = 'blue';
+  state.gameActive = true;
+  state.animating = false;
+  state.boardElements = Array(9).fill(null);
+
+  state.playerHand = lesson.playerHand.map(c => ({...c, owner:'blue'}));
+  state.aiHand = lesson.reaperHand.map(c => ({...c, owner:'red'}));
+
+  // Set rules for this lesson
+  state.rules = {sameWall:false, same:false, plus:false, combo:false, suddenDeath:false};
+  if(lesson.rules){
+    Object.keys(lesson.rules).forEach(k => state.rules[k] = lesson.rules[k]);
+  }
+
+  showScreen('game-screen');
+  renderGame();
+
+  // Run first step after a short delay
+  setTimeout(()=> runTutStep(), 500);
+}
+
+function runTutStep(){
+  const lesson = TUT_LESSONS[tutLesson];
+  if(tutStep >= lesson.steps.length) return;
+  const step = lesson.steps[tutStep];
+
+  // Clear any previous highlights
+  clearTutHighlights();
+
+  if(step.type === 'dialogue'){
+    showDialogue(step.text, ()=>{
+      tutStep++;
+      runTutStep();
+    });
+  }
+  else if(step.type === 'player_move'){
+    tutExpectedCard = step.card;
+    tutExpectedCell = step.cell;
+    // Highlight the expected card and cell
+    highlightTutTargets(step.card, step.cell);
+    showDialogueWaitForMove(step.hint || 'Make your move.');
+  }
+  else if(step.type === 'reaper_move'){
+    showDialogue(step.text, ()=>{
+      // Execute the Reaper's move
+      const card = state.aiHand.splice(step.card, 1)[0];
+      state.board[step.cell] = {card, owner:'red'};
+      playPlaceSound('red');
+      renderGame();
+      setTimeout(()=>{
+        tutStep++;
+        runTutStep();
+      }, 600);
+    });
+  }
+  else if(step.type === 'end'){
+    hideDialogue();
+    showLessonComplete();
+  }
+}
+
+function highlightTutTargets(cardIdx, cellIdx){
+  // Highlight card in hand
+  setTimeout(()=>{
+    const handCards = document.querySelectorAll('.hand-area.left .card');
+    if(handCards[cardIdx]) handCards[cardIdx].classList.add('tut-highlight');
+    // Highlight target cell
+    const cells = document.getElementById('board').children;
+    if(cells[cellIdx]) cells[cellIdx].classList.add('tut-target');
+  }, 100);
+}
+
+function clearTutHighlights(){
+  document.querySelectorAll('.tut-highlight').forEach(el => el.classList.remove('tut-highlight'));
+  document.querySelectorAll('.tut-target').forEach(el => el.classList.remove('tut-target'));
+}
+
+// Override placeCard in tutorial mode
+const _originalPlaceCard = placeCard;
+placeCard = function(cellIdx){
+  if(!tutMode) return _originalPlaceCard(cellIdx);
+
+  if(!state.gameActive || state.animating) return;
+  if(state.board[cellIdx]) return;
+  if(state.turn !== 'blue') return;
+  if(state.selectedCard === null) return;
+
+  // Check if this is the expected move
+  if(state.selectedCard === tutExpectedCard && cellIdx === tutExpectedCell){
+    // Correct move!
+    clearTutHighlights();
+    tutWrongMoveCount = 0;
+    const card = state.playerHand.splice(state.selectedCard, 1)[0];
+    executePlace(card, cellIdx, 'blue');
+
+    // Wait for animations to finish then advance
+    setTimeout(()=>{
+      tutStep++;
+      runTutStep();
+    }, 1200);
+  } else {
+    // Wrong move — Reaper comments
+    const line = WRONG_MOVE_LINES[Math.min(tutWrongMoveCount, WRONG_MOVE_LINES.length-1)];
+    tutWrongMoveCount++;
+    state.selectedCard = null;
+    renderGame();
+    showDialogueWaitForMove(line);
+    setTimeout(()=> highlightTutTargets(tutExpectedCard, tutExpectedCell), 200);
+  }
+};
+
+function showLessonComplete(){
+  const lesson = TUT_LESSONS[tutLesson];
+  const overlay = document.getElementById('tut-lesson-complete');
+  document.getElementById('tut-lesson-title').textContent = lesson.title + ' — Complete!';
+  const isLast = tutLesson >= TUT_LESSONS.length - 1;
+  document.getElementById('tut-lesson-msg').textContent = isLast
+    ? "You've completed all of Death's lessons. Time to put your skills to the test!"
+    : "Ready for the next lesson?";
+  document.getElementById('tut-next-lesson-btn').textContent = isLast ? 'FINISH' : 'NEXT LESSON ▶';
+  document.getElementById('tut-next-lesson-btn').onclick = isLast ? exitTutorial : nextTutLesson;
+  overlay.style.display = 'flex';
+}
+
+function nextTutLesson(){
+  document.getElementById('tut-lesson-complete').style.display = 'none';
+  hideDialogue();
+  tutLesson++;
+  if(tutLesson < TUT_LESSONS.length){
+    launchTutLesson(tutLesson);
+  } else {
+    exitTutorial();
+  }
+}
+
+function exitTutorial(){
+  document.getElementById('tut-lesson-complete').style.display = 'none';
+  hideDialogue();
+  tutMode = false;
+  clearTutHighlights();
+  backToTitle();
 }
 
 // ── INIT ──
