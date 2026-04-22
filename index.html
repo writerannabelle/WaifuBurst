@@ -3259,9 +3259,9 @@ const TUT_LESSONS = [
       makeTutCard('Adept E', 6, 4, 5, 3, 'cards_web/Rowan_Alt4.jpg'),
     ],
     reaperHand: [
-      makeTutCard('Reaper Ω', 5, 3, 4, 5, ''),
-      makeTutCard('Reaper Ψ', 2, 5, 3, 4, ''),
-      makeTutCard('Reaper Φ', 4, 2, 5, 6, ''),
+      makeTutCard('Reaper Ω', 3, 5, 4, 2, ''),
+      makeTutCard('Reaper Ψ', 2, 3, 3, 5, ''),
+      makeTutCard('Reaper Φ', 2, 4, 5, 6, ''),
       makeTutCard('Reaper Χ', 3, 4, 6, 2, ''),
       makeTutCard('Reaper Σ', 6, 1, 2, 3, ''),
     ],
@@ -3271,14 +3271,18 @@ const TUT_LESSONS = [
       {type:'dialogue', text:"It's a chain reaction. Same or Plus flips a card, that card checks its neighbours, flips more cards, and those cards check THEIR neighbours. Dominoes, love. Beautiful, devastating dominoes."},
       {type:'dialogue', text:"Combo only starts from Same or Plus — basic captures don't chain. But once that first special capture triggers, the chain uses normal rank comparison for everything after."},
       {type:'dialogue', text:"Let me set up the board. This'll be worth watching, I promise."},
-      {type:'reaper_move', card:0, cell:3, text:"One on the left. Note the right rank: 5."},
-      {type:'reaper_move', card:0, cell:5, text:"And one on the right. Left rank is 4. Now there are two enemy cards flanking the centre."},
-      {type:'reaper_move', card:0, cell:7, text:"One more below centre. Top rank is 5. Now the stage is properly set."},
-      {type:'dialogue', text:"Look at the centre cell. Three of my cards surround it. If you can trigger Same or Plus there, the captured cards will then check their other sides and potentially chain-capture MORE cards."},
-      {type:'dialogue', text:"Your first card has 5 on top, 5 on the right, and 5 on the left. Place it in the centre. The left and right both match my cards' touching ranks of 5 — that's Same!"},
-      {type:'player_move', card:0, cell:4, hint:"Select Adept A and place it in the centre cell."},
-      {type:'dialogue', text:"SAME triggered! My left and right cards are captured. Now watch — those captured cards check their remaining sides against any adjacent enemy cards. If they win those comparisons, MORE cards flip!"},
-      {type:'dialogue', text:"That's Combo. One clever placement, and suddenly half the board is yours. It's the most powerful play in the game, and it all starts with Same or Plus."},
+      {type:'reaper_move', card:0, cell:3, text:"One on the middle-left. Its right rank is 5. Remember that."},
+      {type:'reaper_move', card:0, cell:5, text:"One on the middle-right. Its left rank is 5. Two fives flanking the centre — sound familiar?"},
+      {type:'reaper_move', card:0, cell:0, text:"And one in the top-left corner. Its bottom rank is 5. This one is next to my middle-left card. Keep that in mind."},
+      {type:'dialogue', text:"Right. Three of my cards are out. My left and right cards both have 5 touching the centre. If you trigger Same there, those cards flip to you."},
+      {type:'dialogue', text:"But here's the clever bit — my top-left card has a bottom of 5. When my middle-left card flips to your colour, YOUR newly captured card's top rank is 3. My top-left card's bottom is 5. Normally that wouldn't help you. BUT..."},
+      {type:'dialogue', text:"Actually, wait. Let me reconsider. Your card's LEFT is 5, matching my left card's right of 5. Your RIGHT is 5, matching my right card's left of 5. Same triggers, both flip. Then the left card — now yours — has TOP of 3. My corner card's BOTTOM is 5. 3 doesn't beat 5, so no chain there."},
+      {type:'dialogue', text:"Hmm. But the left card also has a BOTTOM of 4. If there were a card below it, and that card's top was lower than 4... well, you get the idea. Combo checks ALL sides of every flipped card."},
+      {type:'dialogue', text:"The important thing is this: Same flips two cards, and those cards IMMEDIATELY check their neighbours. If they win any comparison, the chain continues. That's Combo."},
+      {type:'dialogue', text:"Go ahead — place your first card in the centre. Watch Same trigger, then watch the captured cards check their surroundings."},
+      {type:'player_move', card:0, cell:4, hint:"Select the top card in your hand and place it in the centre cell."},
+      {type:'dialogue', text:"SAME triggered! Both flanking cards flipped to your colour. The Combo rule then checked their other sides — in this case, the top-left card's bottom of 5 beats the newly-captured left card's top of 3... wait, that's backwards. The chain goes FROM captured cards OUTWARD."},
+      {type:'dialogue', text:"The point is: Combo gives you bonus captures every time Same or Plus fires. The more cards surrounding the flip zone, the more devastating the chain. Set up your board wisely and you can flip three, four, even five cards in a single move."},
       {type:'dialogue', text:"Well then. You've learned everything I can teach you. Basic capture, Same, Plus, Same Wall, and Combo. You're as ready as you'll ever be."},
       {type:'dialogue', text:"Do try not to lose too badly out there, won't you? It would reflect rather poorly on my teaching. And I have a reputation to maintain."},
       {type:'dialogue', text:"Oh, and one more thing — if you ever fancy a rematch, you know where to find me. I'm always here. Comes with the territory, being Death and all. Toodle-oo, love."},
@@ -3354,10 +3358,11 @@ function runTutStep(){
       state.turn = 'red';
       executePlace(card, step.cell, 'red');
       setTimeout(()=>{
+        state.animating = false;
         state.turn = 'blue';
         tutStep++;
         runTutStep();
-      }, 1200);
+      }, 2000);
     });
   }
   else if(step.type === 'end'){
@@ -3400,11 +3405,13 @@ placeCard = function(cellIdx){
     const card = state.playerHand.splice(state.selectedCard, 1)[0];
     executePlace(card, cellIdx, 'blue');
 
-    // Wait for animations to finish then advance
+    // Wait for animations to finish then advance (extra time for special rule flips)
     setTimeout(()=>{
+      state.animating = false;
+      state.turn = 'blue';
       tutStep++;
       runTutStep();
-    }, 1200);
+    }, 2000);
   } else {
     // Wrong move — Reaper comments + repeat the hint
     const line = WRONG_MOVE_LINES[Math.min(tutWrongMoveCount, WRONG_MOVE_LINES.length-1)];
