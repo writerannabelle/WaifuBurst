@@ -804,9 +804,13 @@
 
   /* ── TUTORIAL DIALOGUE ── */
   .tut-dialogue {
-    position:fixed; bottom:0; left:0; right:0; z-index:80;
+    position:fixed; bottom:0; left:50%; transform:translateX(-50%);
+    width:min(600px, 90vw); z-index:80;
     background:linear-gradient(0deg, rgba(10,5,25,0.98), rgba(20,10,40,0.95));
     border-top:2px solid rgba(100,200,230,0.3);
+    border-left:1px solid rgba(100,200,230,0.15);
+    border-right:1px solid rgba(100,200,230,0.15);
+    border-radius:12px 12px 0 0;
     padding:16px 20px 20px;
     display:none;
     box-shadow:0 -4px 30px rgba(0,0,0,0.5);
@@ -2956,6 +2960,7 @@ function showDialogue(text, onDone){
   const textEl = document.getElementById('tut-dialogue-text');
   const hint = document.getElementById('tut-dialogue-hint');
   box.classList.add('visible');
+  box.style.pointerEvents = 'auto';
   hint.textContent = '';
   tutFullText = text;
   tutTyping = true;
@@ -3000,6 +3005,7 @@ function showDialogueWaitForMove(text){
   const textEl = document.getElementById('tut-dialogue-text');
   const hint = document.getElementById('tut-dialogue-hint');
   box.classList.add('visible');
+  box.style.pointerEvents = 'auto';
   hint.textContent = '';
   tutFullText = text;
   tutTyping = true;
@@ -3016,6 +3022,7 @@ function showDialogueWaitForMove(text){
       tutTyping = false;
       hint.textContent = 'MAKE YOUR MOVE';
       hint.classList.add('blink');
+      box.style.pointerEvents = 'none';
     }
   }, 28);
   box.onclick = ()=>{
@@ -3025,6 +3032,7 @@ function showDialogueWaitForMove(text){
       tutTyping = false;
       hint.textContent = 'MAKE YOUR MOVE';
       hint.classList.add('blink');
+      box.style.pointerEvents = 'none';
     }
   };
 }
@@ -3077,20 +3085,20 @@ const TUT_LESSONS = [
       {type:'dialogue', text:"Now then, I'm going to teach you how to play this delightful little card game. It's rather like chess, except with prettier pictures and considerably less sulking."},
       {type:'dialogue', text:"You see those cards in your hand? Each one has four numbers — top, right, bottom, and left. Those are your ranks. Higher is better. Simple enough, yeah?"},
       {type:'dialogue', text:"We take turns placing cards on this lovely 3×3 board. When your card touches an opponent's card, the touching sides are compared. If your number is higher, you capture their card. It flips to your colour."},
-      {type:'dialogue', text:"Right. Let's start with something easy. Place your first card — the one with the 7 on the left — right in the centre of the board. Go on, click it, then click the centre cell."},
-      {type:'player_move', card:0, cell:4, hint:"Select Trainee A and place it in the centre cell."},
+      {type:'dialogue', text:"Right. Let's start with something easy. Place your first card — the one at the top of your hand — right in the centre of the board. Go on, click it, then click the centre cell."},
+      {type:'player_move', card:0, cell:4, hint:"Select the top card in your hand and place it in the centre cell."},
       {type:'dialogue', text:"Brilliant. You've placed your first card. Nothing to capture yet — the board was empty. But that changes now. My turn."},
-      {type:'reaper_move', card:0, cell:5, text:"I'll pop one of mine right next to yours, on the right. Notice my card's left side is a 2, and your right side is a 3. Your 3 beats my 2, so... nothing happens to your card. I wasn't trying to capture — just setting up the lesson."},
-      {type:'dialogue', text:"Now here's where it gets interesting. Place your second card — the one with the 6 on the right — to the LEFT of my card. That means you'll be attacking my card's left side with your right side."},
-      {type:'player_move', card:0, cell:3, hint:"Select Trainee B and place it to the left of Death's card (middle-left cell)."},
-      {type:'dialogue', text:"There we are! But wait — your card's right rank is 6, and you're not adjacent to my card on that side from this position. What matters is which sides are actually touching. That's the key to this whole game, love."},
+      {type:'reaper_move', card:0, cell:1, text:"I'll pop one of mine up top, just above yours. Notice my card's bottom side is a 5, and your top side is a 5. Neither captures the other — they're equal. I'm just setting up the lesson."},
+      {type:'dialogue', text:"Now here's where it gets interesting. Place your next card — the one now at the top of your hand — right below the centre, in the bottom-middle cell."},
+      {type:'player_move', card:0, cell:7, hint:"Select the top card in your hand and place it in the bottom-middle cell."},
+      {type:'dialogue', text:"Nicely done! Your card's top side is touching your centre card's bottom side, but since you own both cards, no capture happens. You can only capture the other player's cards."},
       {type:'dialogue', text:"My turn again. Pay attention to what happens next."},
-      {type:'reaper_move', card:0, cell:1, text:"I'll place this one up top. My card's bottom is a 2, and your centre card's top is a 5. Your 5 beats my 2 — so you're safe. Can't capture what's already stronger than you, can I?"},
-      {type:'dialogue', text:"See how that works? When I place a card next to yours, the touching sides are compared. My bottom versus your top. If I'd had the higher number, I would have flipped your card to my colour."},
-      {type:'dialogue', text:"Now, your go. Place the card with the 7 on top up in the top-left corner. Let's see you capture something."},
-      {type:'player_move', card:0, cell:0, hint:"Select Trainee C and place it in the top-left corner."},
-      {type:'dialogue', text:"Lovely! Your card's right side is 2 and my card's left is... actually, let me see. The point is — you're learning. And that's rather the whole idea, isn't it?"},
-      {type:'dialogue', text:"We'll carry on with the rest of the match. You've grasped the fundamentals — place cards, compare touching sides, higher number wins. That's all there is to basic capture."},
+      {type:'reaper_move', card:0, cell:5, text:"I'll place this one to the right of your centre card. My card's left side is a 4, and your centre card's right side is a 3. My 4 beats your 3 — so I capture your centre card! Watch it flip to my colour."},
+      {type:'dialogue', text:"See that? When I placed my card, the touching sides were compared. My left versus your right. My 4 was higher than your 3, so your card flipped to red. That's basic capture, love."},
+      {type:'dialogue', text:"Now it's your chance to capture it back. Place your next card in the top-right corner. If your card's bottom side beats my card's top side, you'll recapture!"},
+      {type:'player_move', card:0, cell:2, hint:"Select the top card in your hand and place it in the top-right corner."},
+      {type:'dialogue', text:"There you go! You're getting the hang of it. Every time a card is placed, all touching sides are compared against adjacent cards. Higher number captures."},
+      {type:'dialogue', text:"We'll stop the match here. You've grasped the fundamentals — place cards, compare touching sides, higher number captures. That's all there is to basic play."},
       {type:'dialogue', text:"In the next lesson, I'll show you something rather more clever. There are special rules that can flip multiple cards at once. Frightfully exciting stuff."},
       {type:'dialogue', text:"But for now, well done. I think you've earned a biscuit. Not that I have any. Death doesn't keep biscuits. Terrible for the figure. Off you pop."},
       {type:'end'}
@@ -3354,7 +3362,6 @@ placeCard = function(cellIdx){
   if(state.selectedCard === null) return;
 
   // Check if this is the expected move
-  console.log('TUT placeCard:', {selected: state.selectedCard, expected: tutExpectedCard, cell: cellIdx, expectedCell: tutExpectedCell, types: [typeof state.selectedCard, typeof tutExpectedCard]});
   if(state.selectedCard === tutExpectedCard && cellIdx === tutExpectedCell){
     // Correct move!
     clearTutHighlights();
@@ -3368,12 +3375,16 @@ placeCard = function(cellIdx){
       runTutStep();
     }, 1200);
   } else {
-    // Wrong move — Reaper comments
+    // Wrong move — Reaper comments + repeat the hint
     const line = WRONG_MOVE_LINES[Math.min(tutWrongMoveCount, WRONG_MOVE_LINES.length-1)];
     tutWrongMoveCount++;
+    const lesson = TUT_LESSONS[tutLesson];
+    const step = lesson.steps[tutStep];
+    const hint = step.hint || '';
+    const fullLine = hint ? line + ' ' + hint : line;
     state.selectedCard = null;
     renderGame();
-    showDialogueWaitForMove(line);
+    showDialogueWaitForMove(fullLine);
     setTimeout(()=> highlightTutTargets(tutExpectedCard, tutExpectedCell), 200);
   }
 };
