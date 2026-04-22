@@ -3354,6 +3354,7 @@ placeCard = function(cellIdx){
   if(state.selectedCard === null) return;
 
   // Check if this is the expected move
+  console.log('TUT placeCard:', {selected: state.selectedCard, expected: tutExpectedCard, cell: cellIdx, expectedCell: tutExpectedCell, types: [typeof state.selectedCard, typeof tutExpectedCard]});
   if(state.selectedCard === tutExpectedCard && cellIdx === tutExpectedCell){
     // Correct move!
     clearTutHighlights();
