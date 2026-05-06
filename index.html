@@ -144,6 +144,30 @@
     background:rgba(196,77,255,0.15); border:1px solid rgba(196,77,255,0.3); color:#c44dff;
     letter-spacing:1px; text-transform:uppercase;
   }
+  .active-rule-tag.same { color:#00e5ff; background:rgba(0,229,255,0.1); border-color:rgba(0,229,255,0.3); }
+  .active-rule-tag.plus { color:#ff6ec7; background:rgba(255,110,199,0.1); border-color:rgba(255,110,199,0.3); }
+  .active-rule-tag.sameWall { color:#FFD700; background:rgba(255,215,0,0.1); border-color:rgba(255,215,0,0.3); }
+  .active-rule-tag.combo { color:#ff4444; background:rgba(255,68,68,0.1); border-color:rgba(255,68,68,0.3); }
+  .active-rule-tag.suddenDeath { color:#e91e63; background:rgba(233,30,99,0.1); border-color:rgba(233,30,99,0.3); }
+
+  /* PvE match-start rules banner */
+  .pve-rules-banner {
+    position:fixed; top:0; left:0; right:0; z-index:90;
+    display:flex; align-items:center; justify-content:center; gap:10px;
+    padding:12px 20px; flex-wrap:wrap;
+    background:linear-gradient(180deg, rgba(10,5,25,0.95), rgba(10,5,25,0.0));
+    animation:rulesBannerIn 0.5s ease-out forwards;
+    pointer-events:none;
+  }
+  .pve-rules-banner .pve-banner-label {
+    font-family:'Orbitron',sans-serif; font-size:0.65rem; letter-spacing:3px;
+    color:#888; text-transform:uppercase; margin-right:8px;
+  }
+  .pve-rules-banner .active-rule-tag {
+    font-size:0.8rem; padding:5px 14px; animation:ruleTagPulse 1.5s ease-in-out;
+  }
+  @keyframes rulesBannerIn { from{opacity:0;transform:translateY(-20px)} to{opacity:1;transform:translateY(0)} }
+  @keyframes ruleTagPulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.1)} }
 
   /* ── HAND AREAS ── */
   .hand-area { display:flex; flex-direction:column; align-items:center; padding-top:0.5rem; }
@@ -406,6 +430,70 @@
   .draw-text { color:#aaa; }
 
   @keyframes fadeIn { from{opacity:0} to{opacity:1} }
+
+  /* ── PvE LEVEL SELECT ── */
+  #pve-screen {
+    display:none; min-height:100vh; padding:2rem 1rem; max-width:700px; margin:0 auto;
+    animation:fadeIn 0.5s;
+  }
+  .pve-header {
+    text-align:center; margin-bottom:2rem;
+  }
+  .pve-header h2 {
+    font-family:'Orbitron',sans-serif; font-size:1.8rem; color:#c44dff;
+    margin-bottom:0.25rem;
+  }
+  .pve-header p { color:#888; font-size:0.95rem; letter-spacing:2px; }
+  .pve-back-btn {
+    position:absolute; top:1.5rem; left:1.5rem;
+    background:none; border:1px solid rgba(255,255,255,0.15); color:#aaa;
+    padding:6px 14px; border-radius:6px; cursor:pointer; font-family:'Rajdhani',sans-serif;
+    font-size:0.9rem; transition:all 0.2s;
+  }
+  .pve-back-btn:hover { color:#fff; border-color:rgba(255,255,255,0.4); }
+  .pve-grid {
+    display:grid; grid-template-columns: 1fr 1fr; gap:12px;
+  }
+  @media(max-width:500px){ .pve-grid { grid-template-columns:1fr; } }
+  .pve-level-card {
+    position:relative; padding:18px 16px; border-radius:12px; cursor:pointer;
+    border:2px solid rgba(255,255,255,0.08);
+    background:rgba(255,255,255,0.03);
+    transition:all 0.25s; overflow:hidden;
+  }
+  .pve-level-card:hover {
+    transform:translateY(-3px);
+    border-color:rgba(196,77,255,0.4);
+    background:rgba(196,77,255,0.08);
+    box-shadow:0 4px 20px rgba(196,77,255,0.15);
+  }
+  .pve-level-num {
+    font-family:'Orbitron',sans-serif; font-size:0.7rem; letter-spacing:3px;
+    color:#888; margin-bottom:4px; text-transform:uppercase;
+  }
+  .pve-level-name {
+    font-family:'Orbitron',sans-serif; font-size:1.1rem; font-weight:700;
+    margin-bottom:8px; letter-spacing:1px;
+  }
+  .pve-level-rarity {
+    display:flex; flex-wrap:wrap; gap:4px; margin-bottom:6px;
+  }
+  .pve-rarity-tag {
+    font-size:0.7rem; padding:2px 8px; border-radius:4px;
+    font-weight:600; letter-spacing:1px; text-transform:uppercase;
+    border:1px solid; opacity:0.85;
+  }
+  .pve-level-rules {
+    font-size:0.75rem; color:#777; margin-top:4px;
+  }
+  .pve-level-rules span { color:#aaa; }
+  .pve-ai-badge {
+    position:absolute; top:12px; right:12px;
+    font-size:0.65rem; padding:3px 8px; border-radius:4px;
+    font-family:'Orbitron',sans-serif; letter-spacing:1px;
+    background:rgba(255,255,255,0.06); color:#999;
+    border:1px solid rgba(255,255,255,0.1);
+  }
 
   /* ── TUTORIAL OVERLAY ── */
   #howto-overlay {
@@ -943,7 +1031,8 @@
 <div id="title-screen">
   <h1>WAIFU BURST</h1>
   <p class="subtitle">A Card Battle Game</p>
-  <button class="menu-btn" onclick="playWithDeck()">PLAY GAME</button>
+  <button class="menu-btn" onclick="showPvE()">PvE CHALLENGE</button>
+  <button class="menu-btn" onclick="playWithDeck()">QUICK PLAY</button>
   <button class="menu-btn" onclick="showCollection()">COLLECTION</button>
   <button class="menu-btn" onclick="startTutorial()">TUTORIAL</button>
   <button class="menu-btn" onclick="showHowToPlay()" style="border-color:rgba(255,255,255,0.15);background:rgba(255,255,255,0.03)">HOW TO PLAY</button>
@@ -962,6 +1051,16 @@
 </div>
 
 <div id="setup-screen" style="display:none"></div>
+
+<!-- PvE LEVEL SELECT -->
+<div id="pve-screen">
+  <button class="pve-back-btn" onclick="backToTitle()">◀ BACK</button>
+  <div class="pve-header">
+    <h2>PvE CHALLENGE</h2>
+    <p>Choose your opponent</p>
+  </div>
+  <div class="pve-grid" id="pve-grid"></div>
+</div>
 
 <!-- COLLECTION / DECK BUILDER -->
 <div id="collection-screen" style="display:none;">
@@ -1027,9 +1126,11 @@
 
 <!-- RESULT OVERLAY -->
 <div id="result-overlay">
+  <p class="result-sub" id="result-level-tag" style="font-family:'Orbitron',sans-serif;font-size:0.75rem;letter-spacing:3px;margin-bottom:0.5rem;display:none;"></p>
   <h2 id="result-text"></h2>
   <p class="result-sub" id="result-sub"></p>
   <button class="menu-btn" onclick="rematch()">PLAY AGAIN</button>
+  <button class="menu-btn" id="result-levels-btn" style="margin-top:0.5rem;display:none;" onclick="showPvE()">LEVEL SELECT</button>
   <button class="menu-btn" style="margin-top:0.5rem;border-color:rgba(255,255,255,0.15);background:rgba(255,255,255,0.03)" onclick="backToTitle()">MAIN MENU</button>
 </div>
 
@@ -1268,9 +1369,11 @@ let state = {
   draggingCardIdx: null,
 };
 
+let pveLevel = null; // currently selected PvE level (null = not in PvE mode)
+
 // ── SCREENS ──
 function showScreen(id) {
-  ['title-screen','setup-screen','game-screen','collection-screen'].forEach(s => {
+  ['title-screen','setup-screen','game-screen','collection-screen','pve-screen'].forEach(s => {
     const el = document.getElementById(s);
     if(el) el.style.display='none';
   });
@@ -1841,6 +1944,7 @@ function createCollCard(card, unowned, inDeck){
 
 // Play using the active deck (or random if empty)
 function playWithDeck(){
+  pveLevel = null;
   const deck = collState.decks[collState.equippedDeck];
   if(deck.length === DECK_SIZE){
     // Use the selected deck
@@ -1850,6 +1954,7 @@ function playWithDeck(){
     state.gameActive = true;
     state.animating = false;
     state.boardElements = Array(9).fill(null);
+    state.rules = {sameWall:false, same:false, plus:false, combo:false, suddenDeath:false};
 
     state.playerHand = deck.map(id => {
       const card = ALL_CARDS.find(c=>c.id===id);
@@ -1872,12 +1977,14 @@ function playWithDeck(){
 
 // ── START GAME (DEMO MODE — random decks, normal rules) ──
 function startGame(){
+  pveLevel = null;
   state.board = Array(9).fill(null);
   state.selectedCard = null;
   state.turn = 'blue';
   state.gameActive = true;
   state.animating = false;
   state.boardElements = Array(9).fill(null);
+  state.rules = {sameWall:false, same:false, plus:false, combo:false, suddenDeath:false};
 
   // Demo mode: always random decks
   const pool = shuffle([...ALL_CARDS]);
@@ -2130,11 +2237,27 @@ function renderActiveRules(){
   RULES.forEach(r=>{
     if(state.rules[r.id]){
       const tag = document.createElement('span');
-      tag.className='active-rule-tag';
+      tag.className='active-rule-tag ' + r.id;
       tag.textContent=r.name;
       bar.appendChild(tag);
     }
   });
+}
+
+function showRulesBanner(){
+  // Show a temporary top banner listing active rules at match start
+  const activeRules = RULES.filter(r => state.rules[r.id]);
+  if(activeRules.length === 0) return;
+  const banner = document.createElement('div');
+  banner.className = 'pve-rules-banner';
+  banner.innerHTML = '<span class="pve-banner-label">Active Rules</span>' +
+    activeRules.map(r => `<span class="active-rule-tag ${r.id}">${r.name}</span>`).join('');
+  document.body.appendChild(banner);
+  setTimeout(()=>{
+    banner.style.transition='opacity 0.8s';
+    banner.style.opacity='0';
+    setTimeout(()=> banner.remove(), 800);
+  }, 2500);
 }
 
 // ── CARD SELECTION & PLACEMENT ──
@@ -2557,6 +2680,21 @@ function findBestMove(){
   const emptyCells = [];
   state.board.forEach((c,i)=>{ if(!c) emptyCells.push(i); });
 
+  // Determine random chance: PvE level overrides legacy difficulty
+  let randomChance = 0;
+  if(pveLevel){
+    randomChance = pveLevel.aiRandom;
+  } else {
+    if(state.difficulty === 'easy') randomChance = 0.4;
+  }
+
+  // Random move chance
+  if(randomChance > 0 && Math.random() < randomChance){
+    const rCard = Math.floor(Math.random()*state.aiHand.length);
+    const rCell = emptyCells[Math.floor(Math.random()*emptyCells.length)];
+    return {cardIdx: rCard, cellIdx: rCell};
+  }
+
   let bestScore = -Infinity;
   let bestMoves = [];
 
@@ -2571,14 +2709,6 @@ function findBestMove(){
       }
     });
   });
-
-  // Add randomness based on difficulty
-  if(state.difficulty === 'easy' && Math.random() < 0.4){
-    // Random move 40% of the time
-    const rCard = Math.floor(Math.random()*state.aiHand.length);
-    const rCell = emptyCells[Math.floor(Math.random()*emptyCells.length)];
-    return {cardIdx: rCard, cellIdx: rCell};
-  }
 
   return bestMoves[Math.floor(Math.random()*bestMoves.length)];
 }
@@ -2613,7 +2743,7 @@ function evaluateMove(card, cardIdx, cellIdx){
   else if(isEdge) score += 1;
 
   // Hard mode: deeper evaluation
-  if(state.difficulty === 'hard'){
+  if(state.difficulty === 'hard' || (pveLevel && pveLevel.level >= 6)){
     // Check if placement blocks opponent captures
     score += flipped * 5;
     // Prefer using weaker cards early
@@ -2747,6 +2877,19 @@ function endGame(){
   const overlay = document.getElementById('result-overlay');
   const txt = document.getElementById('result-text');
   const sub = document.getElementById('result-sub');
+  const lvlTag = document.getElementById('result-level-tag');
+  const lvlBtn = document.getElementById('result-levels-btn');
+
+  // Show PvE level info if in PvE mode
+  if(pveLevel){
+    lvlTag.textContent = `Level ${pveLevel.level} — ${pveLevel.name}`;
+    lvlTag.style.display = '';
+    lvlTag.style.color = pveLevel.color;
+    lvlBtn.style.display = '';
+  } else {
+    lvlTag.style.display = 'none';
+    lvlBtn.style.display = 'none';
+  }
 
   if(blue > red){
     txt.textContent = 'VICTORY!';
@@ -2766,7 +2909,11 @@ function endGame(){
 
 function rematch(){
   document.getElementById('result-overlay').classList.remove('show');
-  startGame();
+  if(pveLevel){
+    startPvE(pveLevel.level);
+  } else {
+    startGame();
+  }
 }
 
 // ── UTILITIES ──
@@ -3462,6 +3609,202 @@ function exitTutorial(){
   tutMode = false;
   clearTutHighlights();
   backToTitle();
+}
+
+// ── PvE SYSTEM ──
+// 10 difficulty levels with rarity pools, rules, and AI intelligence
+const PVE_LEVELS = [
+  {
+    level:1, name:'Novice',
+    rarities:['common'],
+    rules:{}, // no special rules
+    aiRandom:0.6, // 60% random moves
+    desc:'Common cards only. No special rules.',
+    color:'#aaa'
+  },
+  {
+    level:2, name:'Apprentice',
+    rarities:['common','uncommon'],
+    rules:{},
+    aiRandom:0.5,
+    desc:'Common & Uncommon cards.',
+    color:'#7cb87c'
+  },
+  {
+    level:3, name:'Contender',
+    rarities:['common','uncommon','rare'],
+    rules:{same:true},
+    aiRandom:0.4,
+    desc:'Up to Rare. Same rule active.',
+    color:'#4caf50'
+  },
+  {
+    level:4, name:'Challenger',
+    rarities:['uncommon','rare'],
+    rules:{same:true, plus:true},
+    aiRandom:0.35,
+    desc:'Uncommon & Rare. Same + Plus active.',
+    color:'#2196f3'
+  },
+  {
+    level:5, name:'Veteran',
+    rarities:['uncommon','rare','epic'],
+    rules:{same:true, plus:true},
+    aiRandom:0.25,
+    desc:'Up to Epic. Same + Plus active.',
+    color:'#5c6bc0'
+  },
+  {
+    level:6, name:'Elite',
+    rarities:['rare','epic'],
+    rules:{same:true, plus:true, sameWall:true},
+    aiRandom:0.2,
+    desc:'Rare & Epic. All wall rules active.',
+    color:'#9c27b0'
+  },
+  {
+    level:7, name:'Master',
+    rarities:['rare','epic','legendary'],
+    rules:{same:true, plus:true, sameWall:true, combo:true},
+    aiRandom:0.15,
+    desc:'Up to Legendary. All rules active.',
+    color:'#e65100'
+  },
+  {
+    level:8, name:'Champion',
+    rarities:['epic','legendary'],
+    rules:{same:true, plus:true, sameWall:true, combo:true},
+    aiRandom:0.1,
+    desc:'Epic & Legendary. All rules, smart AI.',
+    color:'#ff9800'
+  },
+  {
+    level:9, name:'Warlord',
+    rarities:['legendary','unique'],
+    rules:{same:true, plus:true, sameWall:true, combo:true},
+    aiRandom:0.05,
+    desc:'Legendary & Unique. Near-perfect AI.',
+    color:'#f44336'
+  },
+  {
+    level:10, name:'Godhand',
+    rarities:['legendary','unique'],
+    rules:{same:true, plus:true, sameWall:true, combo:true, suddenDeath:true},
+    aiRandom:0.0,
+    desc:'Legendary & Unique. Perfect AI. Sudden Death.',
+    color:'#e91e63'
+  }
+];
+
+function showPvE(){
+  showScreen('pve-screen');
+  buildPvEGrid();
+}
+
+function buildPvEGrid(){
+  const grid = document.getElementById('pve-grid');
+  grid.innerHTML = '';
+  PVE_LEVELS.forEach(lvl => {
+    const card = document.createElement('div');
+    card.className = 'pve-level-card';
+    card.style.borderColor = lvl.color + '30';
+    card.onclick = () => startPvE(lvl.level);
+
+    // AI skill label
+    let aiLabel = 'NOVICE';
+    if(lvl.aiRandom <= 0.0) aiLabel = 'PERFECT';
+    else if(lvl.aiRandom <= 0.1) aiLabel = 'EXPERT';
+    else if(lvl.aiRandom <= 0.2) aiLabel = 'SMART';
+    else if(lvl.aiRandom <= 0.35) aiLabel = 'DECENT';
+    else if(lvl.aiRandom <= 0.5) aiLabel = 'BASIC';
+
+    // Rarity tags
+    const rarityTags = lvl.rarities.map(r => {
+      const info = RARITIES[r];
+      return `<span class="pve-rarity-tag" style="color:${info.color};border-color:${info.color}40">${info.label}</span>`;
+    }).join('');
+
+    // Active rules
+    const ruleNames = [];
+    if(lvl.rules.same) ruleNames.push('Same');
+    if(lvl.rules.plus) ruleNames.push('Plus');
+    if(lvl.rules.sameWall) ruleNames.push('Same Wall');
+    if(lvl.rules.combo) ruleNames.push('Combo');
+    if(lvl.rules.suddenDeath) ruleNames.push('Sudden Death');
+    const rulesText = ruleNames.length ? 'Rules: <span>' + ruleNames.join(', ') + '</span>' : 'No special rules';
+
+    card.innerHTML = `
+      <div class="pve-level-num">Level ${lvl.level}</div>
+      <div class="pve-level-name" style="color:${lvl.color}">${lvl.name}</div>
+      <div class="pve-level-rarity">${rarityTags}</div>
+      <div class="pve-level-rules">${rulesText}</div>
+      <div class="pve-ai-badge">${aiLabel}</div>
+    `;
+    grid.appendChild(card);
+  });
+}
+
+function buildPvEDeck(lvl){
+  // Filter cards to the allowed rarities for this level
+  let pool = ALL_CARDS.filter(c => lvl.rarities.includes(c.rarity));
+  // If not enough cards (need 5), widen pool down one rarity tier
+  if(pool.length < 5){
+    const lowestIdx = Math.min(...lvl.rarities.map(r => RARITY_ORDER.indexOf(r)));
+    if(lowestIdx > 0){
+      const extra = ALL_CARDS.filter(c => c.rarity === RARITY_ORDER[lowestIdx - 1]);
+      pool = pool.concat(extra);
+    }
+  }
+  // For higher levels, bias toward higher rarity within the pool
+  if(lvl.level >= 7){
+    pool.sort((a,b) => RARITY_ORDER.indexOf(b.rarity) - RARITY_ORDER.indexOf(a.rarity));
+    pool = pool.slice(0, Math.min(12, pool.length));
+  }
+  return shuffle(pool).slice(0, 5).map(c => ({...c, owner:'red'}));
+}
+
+function startPvE(levelNum){
+  const lvl = PVE_LEVELS.find(l => l.level === levelNum);
+  if(!lvl) return;
+  pveLevel = lvl;
+
+  // Set up game state
+  state.board = Array(9).fill(null);
+  state.selectedCard = null;
+  state.turn = 'blue';
+  state.gameActive = true;
+  state.animating = false;
+  state.boardElements = Array(9).fill(null);
+
+  // Set rules from level
+  state.rules = {sameWall:false, same:false, plus:false, combo:false, suddenDeath:false};
+  Object.keys(lvl.rules).forEach(k => state.rules[k] = lvl.rules[k]);
+
+  // Set AI difficulty based on level's aiRandom
+  if(lvl.aiRandom <= 0.1) state.difficulty = 'hard';
+  else if(lvl.aiRandom <= 0.35) state.difficulty = 'normal';
+  else state.difficulty = 'easy';
+
+  // Player uses their equipped deck
+  const deck = collState.decks[collState.equippedDeck];
+  if(deck.length === DECK_SIZE){
+    state.playerHand = deck.map(id => {
+      const card = ALL_CARDS.find(c => c.id === id);
+      return {...card, owner:'blue'};
+    });
+  } else {
+    // Fallback: random hand
+    const pool = shuffle([...ALL_CARDS]);
+    state.playerHand = pool.slice(0,5).map(c => ({...c, owner:'blue'}));
+  }
+
+  // AI gets a random deck from the level's rarity pool
+  state.aiHand = buildPvEDeck(lvl);
+
+  showScreen('game-screen');
+  renderGame();
+  startMusic();
+  dealInAnimation(()=>{ updateTurnIndicator(); showRulesBanner(); });
 }
 
 // ── INIT ──
